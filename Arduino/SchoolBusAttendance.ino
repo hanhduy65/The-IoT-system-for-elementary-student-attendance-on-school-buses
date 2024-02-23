@@ -101,41 +101,32 @@ String process_RFID_13MHz(uint8_t uid[], uint8_t uidLength) {
   Serial.println(">>>>>>>>>>>>>>>13.56MHz");
   Serial.println(value);
   return value;
-  // delay(1000);
-
 }
 
 
 //Hàm xử lý thông tin từ thẻ RFID 125kHz
 String process_RFID_125kHz() {
-  long Value = 0;
+  long value = 0;
   // Kiểm tra xem có dữ liệu mới từ module RFID 125kHz hay không
   if (HZ1050.available() > 0) {
     // Đọc 4 byte dữ liệu từ module RFID 125kHz
     for (int j = 0; j < 4; j++) {
       while (HZ1050.available() == 0) {};  // Đợi có dữ liệu mới
       int i = HZ1050.read();
-      Value += ((long)i << (24 - (j * 8)));  // Xây dựng giá trị từ 4 byte dữ liệu
+      value += ((long)i << (24 - (j * 8)));  // Xây dựng giá trị từ 4 byte dữ liệu
     }
-    Serial.println(Value);
-    return String(Value);
-    // delay(1000);
+    Serial.println(value);
+    return String(value);
   }
 }
 
 //upload lên server
 void taskUpdateAttendanceFunction(void *pvParameters) {
   for (;;) {
-
     // Nếu giá trị value_key_13 được thay đồi thì mới update
     if (value_key_13MHz.length() > 0) {
       Serial.print("Leng 13.56MHz: ");
       Serial.println(value_key_13MHz.length());
-      // Bật đèn LED khi có the được quét
-      digitalWrite(LED_PIN, HIGH);
-      delay(1000);
-      digitalWrite(LED_PIN, LOW);  // Tắt đèn LED
-      // gọi hàm update
       updateAttendance(value_key_13MHz, 0, http);
       // Đặt lại giá trị để chuẩn bị cho lần đọc tiếp theo
       value_key_13MHz = "";
@@ -146,20 +137,12 @@ void taskUpdateAttendanceFunction(void *pvParameters) {
     if (value_key_125kHz.length() > 0) {
       Serial.print("Leng 125KHz: ");
       Serial.println(value_key_125kHz.length());
-      // Bật đèn LED khi có the được quét
-      digitalWrite(LED_PIN, HIGH);
-      delay(1000);
-      digitalWrite(LED_PIN, LOW);  // Tắt đèn LED
       updateAttendance(value_key_125kHz, 0, http2);
       value_key_125kHz = "";
       delay(1000);
     }
 
     if (value_key_finger > 0) {
-      // Bật đèn LED khi có vân tay được quét
-      digitalWrite(LED_PIN, HIGH);
-      delay(1000);
-      digitalWrite(LED_PIN, LOW);  // Tắt đèn LED
       updateAttendance(String(finger.fingerID), 1, http3);
       value_key_finger = 0;
       delay(1000);
@@ -171,15 +154,14 @@ void taskUpdateAttendanceFunction(void *pvParameters) {
 }
 
 //in ra id của thẻ
-
 void taskRFID125kHzFunction(void *pvParameters) {
   for (;;) {
     // Kiểm tra xem có dữ liệu từ module RFID 125kHz không
     if (HZ1050.available() > 0) {
       Serial.println(">>>>>>>>>check 125kHz");
       // Đọc và xử lý thông tin từ thẻ RFID 125kHz
+      controlLed();
       value_key_125kHz = process_RFID_125kHz();
-
       Serial.print("value 125KHz: ");
       Serial.println(value_key_125kHz);
       delay(1000);
@@ -190,8 +172,6 @@ void taskRFID125kHzFunction(void *pvParameters) {
   }
 }
 
-//in ra id của thẻ
-
 void taskRFID13MHzFunction(void *pvParameters) {
   for (;;) {
     // Khai báo biến để lưu trữ UID của thẻ RFID 13.56MHz
@@ -201,6 +181,7 @@ void taskRFID13MHzFunction(void *pvParameters) {
     // Kiểm tra xem có thẻ RFID 13.56MHz nằm trong phạm vi đọc hay không
     if (nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength)) {
       Serial.println(">>>>>>>>>>check 13.56Mhz");
+      controlLed();
       value_key_13MHz = process_RFID_13MHz(uid, uidLength);
       Serial.print("value 13.56MHz: ");
       Serial.println(value_key_13MHz);
@@ -263,7 +244,7 @@ uint8_t getFingerprintID() {
       Serial.println("Could not find fingerprint features");  // In ra nếu không tìm thấy đặc trưng của vân tay
       return p;
     case FINGERPRINT_INVALIDIMAGE:
-      //#define FINGERPRINT_INVALIDIMAGE  0x15                                             \
+      //#define FINGERPRINT_INVALIDIMAGE  0x15
       //!< Failed to generate image because of lack of valid primary image
       Serial.println("Could not find fingerprint features");  // In ra nếu không tìm thấy đặc trưng của vân tay (ảnh không hợp lệ)
       return p;
@@ -287,10 +268,18 @@ uint8_t getFingerprintID() {
     return p;
   }
   // Tìm thấy khớp vân tay!
+  controlLed();
   Serial.print("Found ID #");
   Serial.print(finger.fingerID);
   value_key_finger = finger.fingerID;
   return finger.fingerID;  // Trả về ID của vân tay tìm thấy
+}
+
+//control led
+void controlLed() {
+  digitalWrite(LED_PIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_PIN, LOW);  // Tắt đèn LED
 }
 
 // set up Wifi
