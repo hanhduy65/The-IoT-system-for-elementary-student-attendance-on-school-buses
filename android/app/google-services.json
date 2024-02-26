@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "905474992403",
+    "firebase_url": "https://attendanceschoolbus-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "attendanceschoolbus",
+    "storage_bucket": "attendanceschoolbus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905474992403:android:b60d111ad80498cfec52e6",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXqE3r165tHPwStVp1z-k9C_Uzp7A7kbI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905474992403:android:d14669f708588394ec52e6",
+        "android_client_info": {
+          "package_name": "com.example.school_bus_attendance_test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXqE3r165tHPwStVp1z-k9C_Uzp7A7kbI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
