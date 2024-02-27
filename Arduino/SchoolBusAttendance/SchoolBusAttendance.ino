@@ -12,41 +12,73 @@
 #include <freertos/task.h>
 #include <Adafruit_Fingerprint.h>
 
-// check git 2
-
+#define SDA_PIN 21                                                                           // Chân kết nối với chân SDA của PN532 (một loại cảm biến RFID/NFC)
+#define SCL_PIN 22                                                                           // Chân kết nối với chân SCL của PN532
+#define RxPin 16                                                                             // Chân RX của UART (giao tiếp qua chuẩn UART) kết nối với chân TxPin của module vân tay
+#define TxPin 17                                                                             // Chân TX của UART kết nối với chân RxPin của module vân tay
 #define FIREBASE_FUNCTION_URL "https://us-central1-attendanceschoolbus.cloudfunctions.net/"  // base URL
-
-WiFiClientSecure sslClient;  // Sử dụng thư viện WiFiClientSecure để thiết lập kết nối an toàn với máy chủ
-
-#define SDA_PIN 21  // Chân kết nối với chân SDA của PN532 (một loại cảm biến RFID/NFC)
-#define SCL_PIN 22  // Chân kết nối với chân SCL của PN532
-#define RxPin 16    // Chân RX của UART (giao tiếp qua chuẩn UART) kết nối với chân TxPin của module vân tay
-#define TxPin 17    // Chân TX của UART kết nối với chân RxPin của module vân tay
-
-#define BAUDRATE 57600     // Tốc độ baud của UART
-#define SER_BUF_SIZE 1024  // Kích thước buffer cho dữ liệu đọc từ UART
+#define BAUDRATE 57600                                                                       // Tốc độ baud của UART
+#define SER_BUF_SIZE 1024                                                                    // Kích thước buffer cho dữ liệu đọc từ UART
+#define LED_PIN 18                                                                           // Chân kết nối với đèn LED
+#define BUTTON 23                                                                            //chân kết nối với Button
 
 HardwareSerial MySerial(2);                                     // Sử dụng HardwareSerial với UART 2
 Adafruit_PN532 nfc(SDA_PIN, SCL_PIN);                           // Sử dụng thư viện PN532 để tương tác với cảm biến NFC
 SoftwareSerial HZ1050(4, 3);                                    // Sử dụng SoftwareSerial để giao tiếp với một thiết bị khác (module có mã HZ1050)
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&MySerial);  // Sử dụng thư viện Adafruit_Fingerprint để tương tác với cảm biến vân tay
-
-String value_key_13MHz = "";   // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 13MHz
-String value_key_125kHz = "";  // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 125kHz
-uint8_t value_key_finger = 0;  // biến để lưu trữ giá trị từ khóa của vân tay
+Preferences preferences;                                        // Đối tượng Preferences để quản lý lưu trữ thông tin cài đặt trong bộ nhớ flash
+WiFiClientSecure sslClient;                                     // Sử dụng thư viện WiFiClientSecure để thiết lập kết nối an toàn với máy chủ
 
 // Đối tượng HTTPClient để thực hiện yêu cầu HTTP
 HTTPClient http;
 HTTPClient http2;
 HTTPClient http3;
 
-Preferences preferences;  // Đối tượng Preferences để quản lý lưu trữ thông tin cài đặt trong bộ nhớ flash
-#define LED_PIN 18        // Chân kết nối với đèn LED
+String value_key_13MHz = "";  // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 13MHz
+String value_key_125kHz = "";       // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 125kHz
+uint8_t value_key_finger = 0;       // biến để lưu trữ giá trị từ khóa của vân tay
 
-//nút bấm
-int button = 23;
 int preStateButton = LOW;  // Lưu trạng thái trước đó của nút
-bool isRegister = false;   // Cờ để chỉ định nút có được nhấn không
+bool isRegister = false;   // đăng ký/đăng nhập
+
+/**
+2 s:C=US, O=Google Trust Services LLC, CN=GTS Root R1
+   i:C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA
+   a:PKEY: rsaEncryption, 4096 (bit); sigalg: RSA-SHA256
+   v:NotBefore: Jun 19 00:00:42 2020 GMT; NotAfter: Jan 28 00:00:42 2028 GMT
+*/
+const char* root_ca = \
+  "-----BEGIN CERTIFICATE-----\n"
+  "MIIFYjCCBEqgAwIBAgIQd70NbNs2+RrqIQ/E8FjTDTANBgkqhkiG9w0BAQsFADBX\n"
+  "MQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1zYTEQMA4GA1UE\n"
+  "CxMHUm9vdCBDQTEbMBkGA1UEAxMSR2xvYmFsU2lnbiBSb290IENBMB4XDTIwMDYx\n"
+  "OTAwMDA0MloXDTI4MDEyODAwMDA0MlowRzELMAkGA1UEBhMCVVMxIjAgBgNVBAoT\n"
+  "GUdvb2dsZSBUcnVzdCBTZXJ2aWNlcyBMTEMxFDASBgNVBAMTC0dUUyBSb290IFIx\n"
+  "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAthECix7joXebO9y/lD63\n"
+  "ladAPKH9gvl9MgaCcfb2jH/76Nu8ai6Xl6OMS/kr9rH5zoQdsfnFl97vufKj6bwS\n"
+  "iV6nqlKr+CMny6SxnGPb15l+8Ape62im9MZaRw1NEDPjTrETo8gYbEvs/AmQ351k\n"
+  "KSUjB6G00j0uYODP0gmHu81I8E3CwnqIiru6z1kZ1q+PsAewnjHxgsHA3y6mbWwZ\n"
+  "DrXYfiYaRQM9sHmklCitD38m5agI/pboPGiUU+6DOogrFZYJsuB6jC511pzrp1Zk\n"
+  "j5ZPaK49l8KEj8C8QMALXL32h7M1bKwYUH+E4EzNktMg6TO8UpmvMrUpsyUqtEj5\n"
+  "cuHKZPfmghCN6J3Cioj6OGaK/GP5Afl4/Xtcd/p2h/rs37EOeZVXtL0m79YB0esW\n"
+  "CruOC7XFxYpVq9Os6pFLKcwZpDIlTirxZUTQAs6qzkm06p98g7BAe+dDq6dso499\n"
+  "iYH6TKX/1Y7DzkvgtdizjkXPdsDtQCv9Uw+wp9U7DbGKogPeMa3Md+pvez7W35Ei\n"
+  "Eua++tgy/BBjFFFy3l3WFpO9KWgz7zpm7AeKJt8T11dleCfeXkkUAKIAf5qoIbap\n"
+  "sZWwpbkNFhHax2xIPEDgfg1azVY80ZcFuctL7TlLnMQ/0lUTbiSw1nH69MG6zO0b\n"
+  "9f6BQdgAmD06yK56mDcYBZUCAwEAAaOCATgwggE0MA4GA1UdDwEB/wQEAwIBhjAP\n"
+  "BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTkrysmcRorSCeFL1JmLO/wiRNxPjAf\n"
+  "BgNVHSMEGDAWgBRge2YaRQ2XyolQL30EzTSo//z9SzBgBggrBgEFBQcBAQRUMFIw\n"
+  "JQYIKwYBBQUHMAGGGWh0dHA6Ly9vY3NwLnBraS5nb29nL2dzcjEwKQYIKwYBBQUH\n"
+  "MAKGHWh0dHA6Ly9wa2kuZ29vZy9nc3IxL2dzcjEuY3J0MDIGA1UdHwQrMCkwJ6Al\n"
+  "oCOGIWh0dHA6Ly9jcmwucGtpLmdvb2cvZ3NyMS9nc3IxLmNybDA7BgNVHSAENDAy\n"
+  "MAgGBmeBDAECATAIBgZngQwBAgIwDQYLKwYBBAHWeQIFAwIwDQYLKwYBBAHWeQIF\n"
+  "AwMwDQYJKoZIhvcNAQELBQADggEBADSkHrEoo9C0dhemMXoh6dFSPsjbdBZBiLg9\n"
+  "NR3t5P+T4Vxfq7vqfM/b5A3Ri1fyJm9bvhdGaJQ3b2t6yMAYN/olUazsaL+yyEn9\n"
+  "WprKASOshIArAoyZl+tJaox118fessmXn1hIVw41oeQa1v1vg4Fv74zPl6/AhSrw\n"
+  "9U5pCZEt4Wi4wStz6dTZ/CLANx8LZh1J7QJVj2fhMtfTJr9w4z30Z209fOU0iOMy\n"
+  "+qduBmpvvYuR7hZL6Dupszfnw0Skfths18dG9ZKb59UhvmaSGZRVbNQpsg3BZlvi\n"
+  "d0lIKO2d1xozclOzgjXPYovJJIultzkMu34qQb9Sz/yilrbCgj8=\n"
+  "-----END CERTIFICATE-----\n";
 
 //khai báo hàm
 void setupWifi();
@@ -57,10 +89,9 @@ uint8_t getFingerprintID();
 void updateAttendance3(String id);
 void taskRFID125kHzFunction(void *pvParameters);
 void taskRFID13MHzFunction(void *pvParameters);
-void taskUpdateAttendanceFunction(void *pvParameters);
+void taskSendData2CloudFunction(void *pvParameters);
 void taskFingerprintFunction(void *pvParameters);
 void taskButtonFunction(void *pvParameters);
-
 
 void setup(void) {
   Serial.begin(9600);                                  // Khởi động cổng serial cho PC
@@ -74,15 +105,14 @@ void setup(void) {
 
   setupWifi();
   pinMode(LED_PIN, OUTPUT);
-  pinMode(button, INPUT);  //Cài đặt chân  ở trạng thái đọc dữ liệu
+  pinMode(BUTTON, INPUT);  //Cài đặt chân  ở trạng thái đọc dữ liệu
   // Tạo các nhiệm vụ
   xTaskCreatePinnedToCore(taskRFID125kHzFunction, "RFID125kHz", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskRFID13MHzFunction, "RFID13MHz", 10000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(taskUpdateAttendanceFunction, "updateAttendance", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(taskSendData2CloudFunction, "sendData2Cloud", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskFingerprintFunction, "Fingerprint", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskButtonFunction, "Button", 10000, NULL, 1, NULL, 1);
 }
-
 
 void loop(void) {
   // Empty loop as tasks are managed by FreeRTOS Scheduler
@@ -114,7 +144,6 @@ String process_RFID_13MHz(uint8_t uid[], uint8_t uidLength) {
   return value;
 }
 
-
 //Hàm xử lý thông tin từ thẻ RFID 125kHz
 String process_RFID_125kHz() {
   long value = 0;
@@ -133,7 +162,7 @@ String process_RFID_125kHz() {
 
 void taskButtonFunction(void *pvParameters) {
   for (;;) {
-    int buttonStatus = digitalRead(button);  // Trạng thái hiện tại của nút
+    int buttonStatus = digitalRead(BUTTON);  // Trạng thái hiện tại của nút
     if (buttonStatus != preStateButton) {
       // Trạng thái của nút đã thay đổi
       if (buttonStatus == HIGH) {
@@ -141,19 +170,21 @@ void taskButtonFunction(void *pvParameters) {
         isRegister = !isRegister;
       }
     }
+    Serial.print("is Register: ");
+    Serial.println(isRegister);
     preStateButton = buttonStatus;
-
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
+}
 
 //upload lên server
-void taskUpdateAttendanceFunction(void *pvParameters) {
+void taskSendData2CloudFunction(void *pvParameters) {
   for (;;) {
     // Nếu giá trị value_key_13 được thay đồi thì mới update
     if (value_key_13MHz.length() > 0) {
       Serial.print("Leng 13.56MHz: ");
       Serial.println(value_key_13MHz.length());
-      updateAttendance(value_key_13MHz, 0, http);
+      isRegister ? registerIdStudentFunction() : updateAttendance(value_key_13MHz, 0, http);
       // Đặt lại giá trị để chuẩn bị cho lần đọc tiếp theo
       value_key_13MHz = "";
       delay(1000);
@@ -163,17 +194,16 @@ void taskUpdateAttendanceFunction(void *pvParameters) {
     if (value_key_125kHz.length() > 0) {
       Serial.print("Leng 125KHz: ");
       Serial.println(value_key_125kHz.length());
-      updateAttendance(value_key_125kHz, 0, http2);
+      isRegister ? registerIdStudentFunction() : updateAttendance(value_key_125kHz, 0, http2);
       value_key_125kHz = "";
       delay(1000);
     }
 
     if (value_key_finger > 0) {
-      // updateAttendance(String(finger.templateBuffer, finger.templateSize), 1, http3);
+      isRegister ? registerIdStudentFunction() : updateAttendance(String(value_key_finger), 1, http3);
       value_key_finger = 0;
       delay(1000);
     }
-
     // Delay giữa các lần lặp của nhiệm vụ
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
@@ -192,7 +222,6 @@ void taskRFID125kHzFunction(void *pvParameters) {
       Serial.println(value_key_125kHz);
       delay(1000);
     }
-
     // Delay giữa các lần lặp của nhiệm vụ
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
@@ -300,7 +329,6 @@ uint8_t getFingerprintID() {
   return finger.fingerID;  // Trả về ID của vân tay tìm thấy
 }
 
-
 //control led
 void controlLed() {
   digitalWrite(LED_PIN, HIGH);
@@ -376,7 +404,7 @@ void updateAttendance(String id, int key, HTTPClient &http) {
   String url = FIREBASE_FUNCTION_URL;
   url.concat("updateAttendance");
 
-  sslClient.setInsecure();  // Ignore SSL certificate verification (for testing only)
+  sslClient.setCACert(root_ca);  // Sử dụng chứng chỉ SSL
   http.begin(sslClient, url);
   http.addHeader("Content-Type", "application/json");
 
@@ -398,4 +426,9 @@ void updateAttendance(String id, int key, HTTPClient &http) {
   http.end();
 
   delay(5000);
+}
+
+void registerIdStudentFunction() {
+  // to do
+  Serial.println(">>>>>>>>>>>>>>>Register check");
 }
