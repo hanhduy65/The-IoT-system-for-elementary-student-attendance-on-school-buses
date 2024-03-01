@@ -251,13 +251,13 @@ void taskRFID13MHzFunction(void *pvParameters) {
 //gọi hàm vân tay
 void taskFingerprintFunction(void *pvParameters) {
   for (;;) {
-    uint8_t finger = getFingerprintID();
-    delay(200);
+    getFingerprintID(0);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
 
 //xử lí vân tay
-uint8_t getFingerprintID() {
+uint8_t getFingerprintID(uint16_t id) {
   // Bước 1: Lấy hình ảnh từ cảm biến vân tay
   uint8_t p = finger.getImage();  //uint8_t: một kiểu dữ liệu nguyên không dấu (unsigned integer) và có độ rộng cố định là 8 bit.
   switch (p) {
@@ -308,25 +308,73 @@ uint8_t getFingerprintID() {
       return p;
   }
 
-  // Bước 3: Tìm kiếm vân tay trong cơ sở dữ liệu
-  p = finger.fingerSearch();
-  if (p == FINGERPRINT_OK) {
-    Serial.println("Found a print match!");  // In ra nếu tìm thấy khớp vân tay trong cơ sở dữ liệu
-  } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
-    Serial.println("Communication error");  // In ra nếu có lỗi trong quá trình giao tiếp
-    return p;
-  } else if (p == FINGERPRINT_NOTFOUND) {
-    Serial.println("Did not find a match");  // In ra nếu không tìm thấy khớp vân tay trong cơ sở dữ liệu
-    return p;
-  } else {
-    Serial.println("Unknown error");  // In ra nếu có lỗi không xác định
-    return p;
+  Serial.print("Attempting to get #");
+  Serial.println(id);
+
+  // Lấy template đã chuyển đổi
+  p = finger.getModel();
+
+  switch (p) {
+    case FINGERPRINT_OK:
+      Serial.print("Template ");
+      Serial.print(id);
+      Serial.println(" transferring:");
+      break;
+    default:
+      Serial.print("Unknown error ");
+      Serial.println(p);
+      return p;
   }
-  // Tìm thấy khớp vân tay!
-  Serial.print("Found ID #");
-  Serial.print(finger.fingerID);
-  value_key_finger = finger.fingerID;
-  return finger.fingerID;  // Trả về ID của vân tay tìm thấy
+
+  // Một gói dữ liệu có 267 bytes. Trong một gói dữ liệu, có 11 byte là 'vô dụng' :D
+  uint8_t bytesReceived[534];  // 2 gói dữ liệu
+  memset(bytesReceived, 0xff, 534);
+
+  uint32_t starttime = millis();
+  int i = 0;
+
+  // Đọc dữ liệu từ cảm biến vân tay
+  while (i < 534 && (millis() - starttime) < 20000) {
+    if (MySerial.available()) {
+      bytesReceived[i++] = MySerial.read();
+    }
+  }
+
+  Serial.print(i);
+  Serial.println(" bytes read.");
+  Serial.println("Decoding packet...");
+
+  uint8_t fingerTemplate[512];  // mẫu vân tay thực sự
+  memset(fingerTemplate, 0xff, 512);
+
+  // Lọc và sao chép dữ liệu từ mảng bytesReceived vào mảng fingerTemplate
+  int uindx = 9, index = 0;
+  memcpy(fingerTemplate + index, bytesReceived + uindx, 256);  // 256 byte đầu tiên
+  uindx += 256;                                                // bỏ qua dữ liệu
+  uindx += 2;                                                  // bỏ qua checksum
+  uindx += 9;                                                  // bỏ qua tiêu đề tiếp theo
+  index += 256;                                                // di chuyển con trỏ
+  memcpy(fingerTemplate + index, bytesReceived + uindx, 256);  // 256 byte thứ hai
+
+  String data = "";
+  // In mẫu vân tay dưới dạng hex
+  for (int i = 0; i < 512; ++i) {
+    data += getHex(fingerTemplate[i], 2);
+  }
+  Serial.println(data);
+  Serial.println("\ndone.");
+  return p;
+}
+
+// Helper function to print an integer in hexadecimal format
+String getHex(int num, int precision) {
+  char tmp[16];
+  char format[128];
+
+  sprintf(format, "%%.%dX", precision);
+
+  sprintf(tmp, format, num);
+  return tmp;
 }
 
 //control led
