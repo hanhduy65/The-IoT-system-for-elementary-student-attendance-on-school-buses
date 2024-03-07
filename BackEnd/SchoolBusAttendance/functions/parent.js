@@ -136,14 +136,12 @@ exports.getStudentIdsByParent = functions.https.onRequest(async (req, res) => {
 
     // Kiểm tra xem có bản ghi nào khớp không
     if (studentSnapshot.exists()) {
-      // Lấy giá trị từ snapshot
       const studentInfo = Object.values(studentSnapshot.val())[0];
 
       // Trả về tên học sinh nếu có, ngược lại trả về null
       const studentId = studentInfo ? studentInfo.student_id : null;
       return res.status(200).json({student_id: studentId});
     } else {
-      // Trường hợp không tìm thấy học sinh
       return res.status(400)
           .json({success: false, message: "Not Found Parent ID"});
     }

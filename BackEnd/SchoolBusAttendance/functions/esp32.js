@@ -5,29 +5,22 @@ const {getCurrentDateTime,
   getCurrentDateInVietnam} = require("./utils/dateUtils");
 
 /**
- * Saves attendance information to the AttendanceReport.
- * @param {string} studentId - The unique identifier of the student.
- * @param {string} eventType - The type of attendance event
- * ("ON_BUS" or "OFF_BUS").
- * @return {Promise} A Promise that resolves when the data
- * is successfully updated.
+ * Lưu thông tin điểm danh.
+ * @param {string} studentId - id của học sinh.
+ * @param {string} eventType - lên/xuống xe
+ * @return {Promise} data khi được cập nhất thành công
  */
 function saveToAttendanceReport(studentId, eventType) {
-  // Get the current date
   const currentDate = getCurrentDateInVietnam();
-  // Get the current time
   const currentTime = getCurrentDateTime();
 
-  // Reference to the student's node in AttendanceReport
   const reportRef = admin.database()
       .ref(`AttendanceReport/${studentId}`);
 
-  // Use the transaction method to ensure data consistency when
   return reportRef.transaction((currentData) => {
-    // If the node doesn't exist, initialize it with an empty
     currentData = currentData || [];
 
-    // Find or initialize the entry for the current date
+    // thêm dữ liệu vào nút curentDate, nếu ko có thì khởi tạo
     const currentDateEntry = currentData
         .find((entry) => entry.date === currentDate) ||
       {date: currentDate, history: []};
@@ -37,14 +30,13 @@ function saveToAttendanceReport(studentId, eventType) {
       timestamp: currentTime,
     });
 
-    // Remove existing entry for the current date
+    // Lọc currentData khác ngày currentDate
     currentData = currentData
         .filter((entry) => entry.date !== currentDate);
 
-    // Add the updated entry for the current date
+    // Add 
     currentData.push(currentDateEntry);
 
-    // Return the updated data
     return currentData;
   });
 }
@@ -77,7 +69,6 @@ exports.updateAttendance = functions.https.onRequest(async (req, res) => {
       return true;
     });
 
-    // Truy vấn dữ liệu từ attendancestudent
     const attendanceRef = admin.database()
         .ref("attendancestudent")
         .orderByChild("student_id")
@@ -121,74 +112,82 @@ exports.updateAttendance = functions.https.onRequest(async (req, res) => {
   }
 });
 
-exports.registerStudentId = functions.https.onRequest(async (req, res) => {
-  try {
-    const {id, key} = req.body;
+exports.registerId =
+  functions.https.onRequest(async (req, res) => {
+    try {
+      const {id, deviceId, key} = req.body;
 
-    const node = {
-      0: "rfid_id",
-      1: "finger_id",
-    };
+      if (!id || !deviceId) {
+        res.status(400)
+            .json(
+                {
+                  success: false,
+                  message: "Parameters" +
+                " are required.",
+                });
+        return;
+      }
+      console.log("id, device, key " + id, deviceId, key);
+      // lấy student id
+      const studentIdSnapshot = await admin.database()
+          .ref(`registerIdRequests/tag${deviceId}`)
+          .orderByChild("student_id")
+          .once("value");
 
-    const newNode = node[key];
+      const isAcceptRef = admin.database()
+          .ref(`registerIdRequests/tag${deviceId}/isAccept`);
 
-    // Kiểm tra xem RFID ID có trong danh sách rfiddata không
-    const rfidSnapshot = await admin.database().ref("rfiddata")
-        .orderByChild(newNode).equalTo(id).once("value");
+      const studentId = studentIdSnapshot.val().student_id;
+      const isAccept = studentIdSnapshot.val().isAccept;
+      console.log("studentId: " + studentId);
+      const rfidRef = admin.database()
+          .ref("rfiddata")
+          .orderByChild("student_id")
+          .equalTo(studentId);
 
-    if (!rfidSnapshot.exists()) {
-      return res.status(404).json({message: "ID not found."});
+      console.log("<<<<<<<<<<<<<rf " + rfidRef);
+      rfidRef.once("value")
+          .then((snapshot) => {
+            snapshot.forEach(async (childSnapshot) => {
+              console.log("<<<<<<<<<<<<<refffff " + childSnapshot.ref);
+              if (isAccept) {
+                if (!key) {
+                  childSnapshot.ref.update({
+                    rfid_id: id,
+                  });
+                } else {
+                  childSnapshot.ref.update({
+                    finger_id: id,
+                  });
+                }
+                await isAcceptRef.ref.set(false);
+                return res.status(200).json(
+                    {
+                      success: true,
+                      message: "Create Id for student succesfully!",
+                    });
+              } else {
+                return res.status(400).json({
+                  success: false,
+                  message: "Not Found Request!!",
+                });
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            return res.status(500).json({
+              succes: false,
+              message: "Internal Server Error",
+            });
+          });
+    } catch (error) {
+      console.error("Error:", error);
+      return res.status(500).json(
+          {
+            success: false,
+            message: "Internal Server Error",
+          },
+      );
     }
-
-    // Lấy thông tin từ danh sách rfiddata
-    let studentId = null;
-
-    // Lặp qua từng child của rfiddata
-    rfidSnapshot.forEach((childSnapshot) => {
-      studentId = childSnapshot.val().student_id;
-      return true;
-    });
-
-    // Truy vấn dữ liệu từ attendancestudent
-    const attendanceRef = admin.database()
-        .ref("attendancestudent")
-        .orderByChild("student_id")
-        .equalTo(studentId);
-
-    const timestamp = getCurrentDateTime();
-
-    // Lấy dữ liệu từ attendancestudent
-    attendanceRef.once("value")
-        .then((snapshot) => {
-        // Lặp qua từng child của attendancestudent
-          snapshot.forEach((childSnapshot) => {
-            const studentData = childSnapshot.val();
-            const isOnBus = studentData.is_on_bus;
-
-            // Cập nhật dữ liệu trong attendancestudent
-            if (isOnBus === false) {
-              childSnapshot.ref.update({
-                is_on_bus: true,
-                start_bus: timestamp,
-              });
-              saveToAttendanceReport(studentId, "ON_BUS");
-            } else {
-              childSnapshot.ref.update({
-                is_on_bus: false,
-                end_bus: timestamp,
-              });
-              saveToAttendanceReport(studentId, "OFF_BUS");
-            }
-            console.log("Attendance updated successfully.");
-            return res.status(200).json({success: true});
-          });
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          return res.status(500).json({message: "Internal Server Error"});
-        });
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({message: "Internal Server Error"});
-  }
-});
+  });

@@ -5,7 +5,7 @@ const {getCurrentDateTime} = require("./utils/dateUtils");
 
 /**
  *
- * @param {string} studentId - ID của học sinh cần lấy thông tin.
+ * @param {string} studentId - ID của học sinh
  * @return {Promise<string|null>} - Promise trả về parentId
  */
 async function getParentIdByStudentId(studentId) {
@@ -31,7 +31,7 @@ exports.sendNotification = functions.database
       const updatedData = change.after.val();
       const previousData = change.before.val();
 
-      // Kiểm tra nếu trạng thái is_on_bus chuyển từ false sang true
+      // Kiểm tra nếu trạng thái is_on_bus
       if (previousData.is_on_bus != updatedData.is_on_bus) {
         const parentId =
                 await getParentIdByStudentId(updatedData.student_id);
@@ -44,10 +44,7 @@ exports.sendNotification = functions.database
           const tokenSnapshot = await admin.database()
               .ref(`users/parents/${parentId}/token_device`).once("value");
           token = tokenSnapshot.val();
-
-          // Tiếp tục xử lý với giá trị token
         } else {
-          // Xử lý khi không tìm thấy parentId
           return;
         }
 

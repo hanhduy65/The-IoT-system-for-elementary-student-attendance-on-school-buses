@@ -93,7 +93,7 @@ exports.login = functions.https.onRequest(async (req, res) => {
   try {
     const {username, password, roleId} = req.body;
 
-    // Specify an array of paths based on the roleId
+    // Xác định đường dẫn dựa trên roleId
     const rolePaths = {
       1: "/parents/",
       2: "/teachers/",
@@ -101,7 +101,7 @@ exports.login = functions.https.onRequest(async (req, res) => {
       4: "/admin_school/",
     };
 
-    // Use the roleId to determine the path
+    // lấy path
     const userPath = rolePaths[roleId];
 
     if (!userPath) {
@@ -112,7 +112,7 @@ exports.login = functions.https.onRequest(async (req, res) => {
       return;
     }
 
-    // Search for the user in the specified path
+    // tìm kiếm username
     const userSnapshot = await admin
         .database()
         .ref("users" + userPath)
@@ -132,8 +132,7 @@ exports.login = functions.https.onRequest(async (req, res) => {
       return;
     }
 
-    // Choose the first user found for simplicity;
-    // you may need a more sophisticated logic
+    // Lấy user đầu tiên tìm thấy by userId
     const userId = Object.keys(userData)[0];
     const user = userData[userId];
 

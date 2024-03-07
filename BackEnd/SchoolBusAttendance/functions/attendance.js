@@ -21,6 +21,7 @@ functions.https.onRequest(async (req, res) => {
     }
 
     const studentData = studentSnapshot.val();
+    studentData.reverse();
     return res.status(200).json(studentData);
   } catch (error) {
     console.error("Error:", error);

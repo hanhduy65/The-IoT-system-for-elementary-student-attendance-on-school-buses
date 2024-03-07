@@ -12,7 +12,6 @@ exports.getStudentById = functions.https.onRequest(async (req, res) => {
       });
     }
 
-    // Lấy dữ liệu học sinh từ Realtime Database
     const studentSnapshot = await admin.database().ref("students")
         .orderByChild("student_id").equalTo(studentId).once("value");
     let studentData = null;
@@ -21,7 +20,6 @@ exports.getStudentById = functions.https.onRequest(async (req, res) => {
 
     studentSnapshot.forEach((childSnapshot) => {
       studentData = childSnapshot.val();
-      // Nếu bạn muốn ngừng lặp sau khi tìm thấy học sinh
       return true;
     });
 

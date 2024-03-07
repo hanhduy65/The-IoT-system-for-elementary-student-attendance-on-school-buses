@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
 /**
- * Lấy thông tin tên học sinh dựa trên student_id từ Realtime Database.
+ * Lấy thông tin tên học sinh dựa trên student_id
  *
  * @param {string} studentId - ID của học sinh cần lấy thông tin.
  * @return {Promise<string|null>} - Promise trả về tên học sinh
@@ -12,25 +12,21 @@ async function getStudentNameById(studentId) {
     // Lấy tham chiếu của nút "students"
     const studentsRef = admin.database().ref("students");
 
-    // Sử dụng orderByChild và equalTo để tìm học sinh với student_id cụ thể
+    // tìm học sinh với student_id cụ thể
     const studentSnapshot = await studentsRef.orderByChild("student_id")
         .equalTo(studentId).once("value");
 
     // Kiểm tra xem có bản ghi nào khớp không
     if (studentSnapshot.exists()) {
-      // Lấy giá trị từ snapshot
       const studentInfo = Object.values(studentSnapshot.val())[0];
 
-      // Trả về tên học sinh nếu có, ngược lại trả về null
       return studentInfo ? studentInfo.student_name : null;
     } else {
-      // Trường hợp không tìm thấy học sinh
       console.error("Không tìm thấy thông tin học sinh với student_id:",
           studentId);
       return null;
     }
   } catch (error) {
-    // Xử lý lỗi nếu có
     console.error("Lỗi khi lấy thông tin học sinh:", error);
     throw error;
   }
@@ -47,7 +43,6 @@ async function getRfidIdByStudentId(studentId) {
     // Lấy tham chiếu của nút "rfiddata"
     const rfidDataRef = admin.database().ref("rfiddata");
 
-    // Sử dụng orderByChild và equalTo để tìm học sinh với student_id cụ thể
     const rfidDataSnapshot = await rfidDataRef.orderByChild("student_id")
         .equalTo(studentId).once("value");
 
@@ -56,16 +51,13 @@ async function getRfidIdByStudentId(studentId) {
       // Lấy giá trị từ snapshot
       const rfidDataInfo = Object.values(rfidDataSnapshot.val())[0];
 
-      // Trả về rfid_id nếu có, ngược lại trả về null
       return rfidDataInfo ? rfidDataInfo.rfid_id : null;
     } else {
-      // Trường hợp không tìm thấy thông tin rfid_id
       console.error("Không tìm thấy thông tin rfid_id với student_id:",
           studentId);
       return null;
     }
   } catch (error) {
-    // Xử lý lỗi nếu có
     console.error("Lỗi khi lấy thông tin rfid_id:", error);
     throw error;
   }
@@ -91,7 +83,7 @@ exports.getStudentOnBus = functions.https.onRequest(async (req, res) => {
       });
     }
 
-    // Lấy dữ liệu học sinh từ Realtime Database
+    // Lấy dữ liệu học sinh
     const snapshot = await admin.database().ref("attendancestudent")
         .orderByChild("bus_id").equalTo(busId).once("value");
 
@@ -134,9 +126,11 @@ exports.getStudentOnBus = functions.https.onRequest(async (req, res) => {
   }
 });
 
+// Thay đổi trang thái chuyến xe (xuất phát/hay kết thúc)
 exports.isRunning = functions.https.onRequest(async (req, res) => {
   try {
     const {busId, isRunning} = req.body;
+    // check tham số đc truyền đủ?
     if (!busId || isRunning === undefined) {
       res.status(400).json({
         success: false,
