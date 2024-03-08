@@ -34,7 +34,7 @@ function saveToAttendanceReport(studentId, eventType) {
     currentData = currentData
         .filter((entry) => entry.date !== currentDate);
 
-    // Add 
+    // Add
     currentData.push(currentDateEntry);
 
     return currentData;
@@ -106,6 +106,30 @@ exports.updateAttendance = functions.https.onRequest(async (req, res) => {
           console.error("Error:", error);
           return res.status(500).json({message: "Internal Server Error"});
         });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({message: "Internal Server Error"});
+  }
+});
+
+exports.initFingerId = functions.https.onRequest(async (req, res) => {
+  try {
+    const rfidDataSnapshot = await admin
+        .database()
+        .ref("rfiddata")
+        .once("value");
+
+    const rfidData = rfidDataSnapshot.val();
+
+    // Khởi tạo biến id và danh sách finger_id
+    let id;
+    const fingerIds = rfidData.map((item) => item.finger_id);
+
+    do {
+      id = Math.floor(Math.random() * 127) + 1;
+    } while (fingerIds.includes(id));
+
+    return res.status(200).json({id});
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({message: "Internal Server Error"});

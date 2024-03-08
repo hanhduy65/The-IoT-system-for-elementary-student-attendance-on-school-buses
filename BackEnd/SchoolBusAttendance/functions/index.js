@@ -1,7 +1,8 @@
 const admin = require("firebase-admin");
 // Import the functions
 const {updateAttendance,
-  registerId} = require("./esp32");
+  registerId,
+  initFingerId: initFingerId} = require("./esp32");
 const {getAttendanceReportByStudentId} = require("./attendance");
 const {sendGPS,
   getBusIdBySupervior,
@@ -38,3 +39,4 @@ exports.registerId = registerId;
 exports.getStudentsNoFinger = getStudentsNoFinger;
 exports.getStudentsNoRFID = getStudentsNoRFID;
 exports.sendRegisterStudentIdRequest = sendRegisterStudentIdRequest;
+exports.initFingerId = initFingerId;

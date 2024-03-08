@@ -11,6 +11,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <Adafruit_Fingerprint.h>
+#include <ArduinoJson.h>
 
 #define SDA_PIN 21                                                                           // Chân kết nối với chân SDA của PN532 (một loại cảm biến RFID/NFC)
 #define SCL_PIN 22                                                                           // Chân kết nối với chân SCL của PN532
@@ -30,13 +31,13 @@ Preferences preferences;                                        // Đối tượ
 WiFiClientSecure sslClient;                                     // Sử dụng thư viện WiFiClientSecure để thiết lập kết nối an toàn với máy chủ
 
 // Đối tượng HTTPClient để thực hiện yêu cầu HTTP
-HTTPClient http;
+HTTPClient http1;
 HTTPClient http2;
 HTTPClient http3;
 
-String value_key_13MHz = "";  // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 13MHz
-String value_key_125kHz = "";       // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 125kHz
-uint8_t value_key_finger = 0;       // biến để lưu trữ giá trị từ khóa của vân tay
+String value_key_13MHz = "";   // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 13MHz
+String value_key_125kHz = "";  // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 125kHz
+int value_key_finger = 0;      // biến để lưu trữ giá trị từ khóa của vân tay
 
 int preStateButton = LOW;  // Lưu trạng thái trước đó của nút
 bool isRegister = false;   // đăng ký/đăng nhập
@@ -47,7 +48,7 @@ bool isRegister = false;   // đăng ký/đăng nhập
    a:PKEY: rsaEncryption, 4096 (bit); sigalg: RSA-SHA256
    v:NotBefore: Jun 19 00:00:42 2020 GMT; NotAfter: Jan 28 00:00:42 2028 GMT
 */
-const char* root_ca = \
+const char *root_ca =
   "-----BEGIN CERTIFICATE-----\n"
   "MIIFYjCCBEqgAwIBAgIQd70NbNs2+RrqIQ/E8FjTDTANBgkqhkiG9w0BAQsFADBX\n"
   "MQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1zYTEQMA4GA1UE\n"
@@ -80,19 +81,6 @@ const char* root_ca = \
   "d0lIKO2d1xozclOzgjXPYovJJIultzkMu34qQb9Sz/yilrbCgj8=\n"
   "-----END CERTIFICATE-----\n";
 
-//khai báo hàm
-void setupWifi();
-void initialize_RFID_13MHz();
-void updateAttendance(String id);
-void updateAttendance2(String id);
-uint8_t getFingerprintID();
-void updateAttendance3(String id);
-void taskRFID125kHzFunction(void *pvParameters);
-void taskRFID13MHzFunction(void *pvParameters);
-void taskSendData2CloudFunction(void *pvParameters);
-void taskFingerprintFunction(void *pvParameters);
-void taskButtonFunction(void *pvParameters);
-
 void setup(void) {
   Serial.begin(9600);                                  // Khởi động cổng serial cho PC
   MySerial.setRxBufferSize(SER_BUF_SIZE);              // Đặt kích thước buffer đọc cho Serial
@@ -100,6 +88,7 @@ void setup(void) {
   HZ1050.begin(9600);                                  // Bắt đầu serial kết nối với đầu đọc RFID 125kHz
   finger.begin(57600);                                 //kết nối với vân tay
   nfc.begin();                                         // Bắt đầu kết nối với đầu đọc RFID 13.56MHz
+  sslClient.setCACert(root_ca);                        // Sử dụng chứng chỉ SSL
 
   initialize_RFID_13MHz();
 
@@ -124,8 +113,6 @@ void initialize_RFID_13MHz() {
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata) {
     Serial.print("Không tìm thấy board PN53x");
-    while (1)
-      ;  // Lặp vô hạn nếu không tìm thấy board
   }
   // Cấu hình chế độ hoạt động cho module RFID
   nfc.SAMConfig();
@@ -168,12 +155,10 @@ void taskButtonFunction(void *pvParameters) {
       if (buttonStatus == HIGH) {
         // Nút được nhấn
         isRegister = !isRegister;
+        delay(200);
       }
     }
-    Serial.print("is Register: ");
-    Serial.println(isRegister);
     preStateButton = buttonStatus;
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
 
@@ -184,25 +169,24 @@ void taskSendData2CloudFunction(void *pvParameters) {
     if (value_key_13MHz.length() > 0) {
       Serial.print("Leng 13.56MHz: ");
       Serial.println(value_key_13MHz.length());
-      isRegister ? registerIdStudentFunction() : updateAttendance(value_key_13MHz, 0, http);
+      isRegister ? registerIdStudentFunction(value_key_13MHz, false, "1", http1) : updateAttendance(value_key_13MHz, 0, http1);
       // Đặt lại giá trị để chuẩn bị cho lần đọc tiếp theo
       value_key_13MHz = "";
-      delay(1000);
     }
 
     //tương tự
     if (value_key_125kHz.length() > 0) {
       Serial.print("Leng 125KHz: ");
       Serial.println(value_key_125kHz.length());
-      isRegister ? registerIdStudentFunction() : updateAttendance(value_key_125kHz, 0, http2);
+      isRegister ? registerIdStudentFunction(value_key_125kHz, false, "1", http2) : updateAttendance(value_key_125kHz, 0, http2);
       value_key_125kHz = "";
-      delay(1000);
     }
 
     if (value_key_finger > 0) {
-      isRegister ? registerIdStudentFunction() : updateAttendance(String(value_key_finger), 1, http3);
+      Serial.print("value_key_finger: ");
+      Serial.println(value_key_finger);
+      isRegister ? registerIdStudentFunction(String(value_key_finger), true, "1", http3) : updateAttendance(String(value_key_finger), 1, http3);
       value_key_finger = 0;
-      delay(1000);
     }
     // Delay giữa các lần lặp của nhiệm vụ
     vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -251,31 +235,185 @@ void taskRFID13MHzFunction(void *pvParameters) {
 //gọi hàm vân tay
 void taskFingerprintFunction(void *pvParameters) {
   for (;;) {
-    getFingerprintID(0);
+    value_key_finger = (isRegister) ? getFingerprintEnroll() : getFingerprintID();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
 
+int getFingerprintEnroll() {
+  int p = -1;
+  int id = -1;  // giá trị trả về cho các case lỗi
+  while (p != FINGERPRINT_OK) {
+    if (!isRegister) {
+      return id;
+    }
+    p = finger.getImage();
+    switch (p) {
+      case FINGERPRINT_OK:
+        controlLed();
+        Serial.println("Image taken");
+        break;
+      case FINGERPRINT_NOFINGER:
+        Serial.print("No finger detected");
+        Serial.println(isRegister);
+        break;
+      case FINGERPRINT_PACKETRECIEVEERR:
+        Serial.println("Communication error");
+        break;
+      case FINGERPRINT_IMAGEFAIL:
+        Serial.println("Imaging error");
+        break;
+      default:
+        Serial.println("Unknown error");
+        break;
+    }
+  }
+
+  // OK success!
+
+  p = finger.image2Tz(1);
+  switch (p) {
+    case FINGERPRINT_OK:
+      Serial.println("Image converted");
+      break;
+    case FINGERPRINT_IMAGEMESS:
+      Serial.println("Image too messy");
+      return id;
+    case FINGERPRINT_PACKETRECIEVEERR:
+      Serial.println("Communication error");
+      return id;
+    case FINGERPRINT_FEATUREFAIL:
+      Serial.println("Could not find fingerprint features");
+      return id;
+    case FINGERPRINT_INVALIDIMAGE:
+      Serial.println("Could not find fingerprint features");
+      return id;
+    default:
+      Serial.println("Unknown error");
+      return id;
+  }
+
+  Serial.println("Remove finger");
+  int finger_id = initFingerId(http3);
+  delay(2000);
+  p = 0;
+  while (p != FINGERPRINT_NOFINGER) {
+    if (!isRegister) {
+      return id;
+    }
+    p = finger.getImage();
+  }
+
+  p = -1;
+  Serial.println("Place same finger again");
+  while (p != FINGERPRINT_OK) {
+    if (!isRegister) {
+      return id;
+    }
+    p = finger.getImage();
+    switch (p) {
+      case FINGERPRINT_OK:
+        controlLed();
+        Serial.println("Image taken");
+        break;
+      case FINGERPRINT_NOFINGER:
+        Serial.print("No finger detected");
+        Serial.println(isRegister);
+        break;
+      case FINGERPRINT_PACKETRECIEVEERR:
+        Serial.println("Communication error");
+        break;
+      case FINGERPRINT_IMAGEFAIL:
+        Serial.println("Imaging error");
+        break;
+      default:
+        Serial.println("Unknown error");
+        break;
+    }
+  }
+  // OK success!
+
+  p = finger.image2Tz(2);
+  switch (p) {
+    case FINGERPRINT_OK:
+      Serial.println("Image converted");
+      break;
+    case FINGERPRINT_IMAGEMESS:
+      Serial.println("Image too messy");
+      return id;
+    case FINGERPRINT_PACKETRECIEVEERR:
+      Serial.println("Communication error");
+      return id;
+    case FINGERPRINT_FEATUREFAIL:
+      Serial.println("Could not find fingerprint features");
+      return id;
+    case FINGERPRINT_INVALIDIMAGE:
+      Serial.println("Could not find fingerprint features");
+      return id;
+    default:
+      Serial.println("Unknown error");
+      return id;
+  }
+
+  // OK converted!
+  p = finger.createModel();
+  if (p == FINGERPRINT_OK) {
+    Serial.println("Prints matched!");
+  } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
+    Serial.println("Communication error");
+    return id;
+  } else if (p == FINGERPRINT_ENROLLMISMATCH) {
+    Serial.println("Fingerprints did not match");
+    return id;
+  } else {
+    Serial.println("Unknown error");
+    return id;
+  }
+
+  p = finger.storeModel(finger_id);
+  if (p == FINGERPRINT_OK) {
+    Serial.println("Stored!");
+  } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
+    Serial.println("Communication error");
+    return id;
+  } else if (p == FINGERPRINT_BADLOCATION) {
+    Serial.println("Could not store in that location");
+    return id;
+  } else if (p == FINGERPRINT_FLASHERR) {
+    Serial.println("Error writing to flash");
+    return id;
+  } else {
+    Serial.println("Unknown error");
+    return id;
+  }
+  Serial.print("Stored ID: ");
+  Serial.print(finger_id);
+  return finger_id;
+}
+
 //xử lí vân tay
-uint8_t getFingerprintID(uint16_t id) {
+int getFingerprintID() {
+  int id = -1;  // giá trị trả về cho các TH lỗi
   // Bước 1: Lấy hình ảnh từ cảm biến vân tay
   uint8_t p = finger.getImage();  //uint8_t: một kiểu dữ liệu nguyên không dấu (unsigned integer) và có độ rộng cố định là 8 bit.
   switch (p) {
-    case FINGERPRINT_OK:              //#define FINGERPRINT_OK 0x00, Command execution is complete
+    case FINGERPRINT_OK:  //#define FINGERPRINT_OK 0x00, Command execution is complete
+      controlLed();
       Serial.println("Image taken");  // In ra nếu hình ảnh được lấy thành công
       break;
-    case FINGERPRINT_NOFINGER:               //#define FINGERPRINT_NOFINGER 0x02         //!< No finger on the sensor
-      Serial.println("No finger detected");  // In ra nếu không phát hiện ngón tay
-      return p;
+    case FINGERPRINT_NOFINGER:             //#define FINGERPRINT_NOFINGER 0x02         //!< No finger on the sensor
+      Serial.print("No finger detected");  // In ra nếu không phát hiện ngón tay
+      Serial.println(isRegister);
+      return id;
     case FINGERPRINT_PACKETRECIEVEERR:        //#define FINGERPRINT_PACKETRECIEVEERR 0x01 //!< Error when receiving data package
       Serial.println("Communication error");  // In ra nếu có lỗi trong quá trình giao tiếp
-      return p;
+      return id;
     case FINGERPRINT_IMAGEFAIL:         //#define FINGERPRINT_IMAGEFAIL 0x03        //!< Failed to enroll the finger
       Serial.println("Imaging error");  // In ra nếu có lỗi trong quá trình tạo hình ảnh
-      return p;
+      return id;
     default:
       Serial.println("Unknown error");  // In ra nếu có lỗi không xác định
-      return p;
+      return id;
   }
 
   // Bước 2: Chuyển đổi hình ảnh thành mẫu vân tay
@@ -288,93 +426,44 @@ uint8_t getFingerprintID(uint16_t id) {
        //!< Failed to generate character file due to overly disorderly
                                           //!< fingerprint image
       Serial.println("Image too messy");  // In ra nếu hình ảnh quá mơ hồ
-      return p;
+      return id;
     case FINGERPRINT_PACKETRECIEVEERR:
       Serial.println("Communication error");  // In ra nếu có lỗi trong quá trình giao tiếp
-      return p;
+      return id;
     case FINGERPRINT_FEATUREFAIL:
       //#define FINGERPRINT_FEATUREFAIL 0x07                                               \
       //!< Failed to generate character file due to the lack of character point
       //!< or small fingerprint image
       Serial.println("Could not find fingerprint features");  // In ra nếu không tìm thấy đặc trưng của vân tay
-      return p;
+      return id;
     case FINGERPRINT_INVALIDIMAGE:
       //#define FINGERPRINT_INVALIDIMAGE  0x15                                             \
       //!< Failed to generate image because of lack of valid primary image
       Serial.println("Could not find fingerprint features");  // In ra nếu không tìm thấy đặc trưng của vân tay (ảnh không hợp lệ)
-      return p;
+      return id;
     default:
       Serial.println("Unknown error");
-      return p;
+      return id;
   }
 
-  Serial.print("Attempting to get #");
-  Serial.println(id);
-
-  // Lấy template đã chuyển đổi
-  p = finger.getModel();
-
-  switch (p) {
-    case FINGERPRINT_OK:
-      Serial.print("Template ");
-      Serial.print(id);
-      Serial.println(" transferring:");
-      break;
-    default:
-      Serial.print("Unknown error ");
-      Serial.println(p);
-      return p;
+  // Bước 3: Tìm kiếm vân tay trong cơ sở dữ liệu
+  p = finger.fingerSearch();
+  if (p == FINGERPRINT_OK) {
+    Serial.println("Found a print match!");  // In ra nếu tìm thấy khớp vân tay trong cơ sở dữ liệu
+  } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
+    Serial.println("Communication error");  // In ra nếu có lỗi trong quá trình giao tiếp
+    return id;
+  } else if (p == FINGERPRINT_NOTFOUND) {
+    Serial.println("Did not find a match");  // In ra nếu không tìm thấy khớp vân tay trong cơ sở dữ liệu
+    return id;
+  } else {
+    Serial.println("Unknown error");  // In ra nếu có lỗi không xác định
+    return id;
   }
-
-  // Một gói dữ liệu có 267 bytes. Trong một gói dữ liệu, có 11 byte là 'vô dụng' :D
-  uint8_t bytesReceived[534];  // 2 gói dữ liệu
-  memset(bytesReceived, 0xff, 534);
-
-  uint32_t starttime = millis();
-  int i = 0;
-
-  // Đọc dữ liệu từ cảm biến vân tay
-  while (i < 534 && (millis() - starttime) < 20000) {
-    if (MySerial.available()) {
-      bytesReceived[i++] = MySerial.read();
-    }
-  }
-
-  Serial.print(i);
-  Serial.println(" bytes read.");
-  Serial.println("Decoding packet...");
-
-  uint8_t fingerTemplate[512];  // mẫu vân tay thực sự
-  memset(fingerTemplate, 0xff, 512);
-
-  // Lọc và sao chép dữ liệu từ mảng bytesReceived vào mảng fingerTemplate
-  int uindx = 9, index = 0;
-  memcpy(fingerTemplate + index, bytesReceived + uindx, 256);  // 256 byte đầu tiên
-  uindx += 256;                                                // bỏ qua dữ liệu
-  uindx += 2;                                                  // bỏ qua checksum
-  uindx += 9;                                                  // bỏ qua tiêu đề tiếp theo
-  index += 256;                                                // di chuyển con trỏ
-  memcpy(fingerTemplate + index, bytesReceived + uindx, 256);  // 256 byte thứ hai
-
-  String data = "";
-  // In mẫu vân tay dưới dạng hex
-  for (int i = 0; i < 512; ++i) {
-    data += getHex(fingerTemplate[i], 2);
-  }
-  Serial.println(data);
-  Serial.println("\ndone.");
-  return p;
-}
-
-// Helper function to print an integer in hexadecimal format
-String getHex(int num, int precision) {
-  char tmp[16];
-  char format[128];
-
-  sprintf(format, "%%.%dX", precision);
-
-  sprintf(tmp, format, num);
-  return tmp;
+  // Tìm thấy khớp vân tay!
+  Serial.print("Found ID: ");
+  Serial.println(finger.fingerID);
+  return finger.fingerID;  // Trả về ID của vân tay tìm thấy
 }
 
 //control led
@@ -447,12 +536,13 @@ void setupWifi() {
 
 /**
 hàm gửi ID của thẻ RFID hoặc ID của vân tay tương ứng với mỗi học sinh
+id: id cuar ther RFID, vân tay
+key: 0: rfid, 1: vân tay
 */
 void updateAttendance(String id, int key, HTTPClient &http) {
   String url = FIREBASE_FUNCTION_URL;
   url.concat("updateAttendance");
 
-  sslClient.setCACert(root_ca);  // Sử dụng chứng chỉ SSL
   http.begin(sslClient, url);
   http.addHeader("Content-Type", "application/json");
 
@@ -470,13 +560,68 @@ void updateAttendance(String id, int key, HTTPClient &http) {
     Serial.println("Error on HTTP request");
     // to do
   }
-
   http.end();
-
-  delay(5000);
 }
 
-void registerIdStudentFunction() {
-  // to do
-  Serial.println(">>>>>>>>>>>>>>>Register check");
+/**
+đăng ký thẻ mới, vân tay mới cho học sinh chưa có
+id: id thẻ, vân tay,
+key: true: đăng ký cho vân tay, false: đăng ký RFID
+deviceId: mã của mỗi hộp BlackBox // to do
+**/
+void registerIdStudentFunction(String id, bool key, String deviceId, HTTPClient &http) {
+  String url = FIREBASE_FUNCTION_URL;
+  url.concat("registerId");
+
+  http.begin(sslClient, url);
+  http.addHeader("Content-Type", "application/json");
+
+  // Tạo dữ liệu JSON để gửi
+  String jsonData = "{ \"id\":" + id + ", \"deviceId\":" + deviceId + ", \"key\":" + key + "}";
+
+  int httpResponseCode = http.POST(jsonData);
+
+  // Xử lý kết quả
+  if (httpResponseCode > 0) {
+    String payload = http.getString();
+    Serial.println("Server response: " + payload);
+    // to do
+  } else {
+    Serial.println("Error on HTTP request");
+    // to do
+  }
+  http.end();
+}
+
+int initFingerId(HTTPClient &http) {
+  String url = FIREBASE_FUNCTION_URL;
+  url.concat("initFingerId");
+
+  http.begin(sslClient, url);
+  http.addHeader("Content-Type", "application/json");
+  int fingerId = -1;
+  while (fingerId == -1) {
+    int httpResponseCode = http.GET();
+    // Xử lý kết quả
+    if (httpResponseCode > 0) {
+      if (httpResponseCode == HTTP_CODE_OK) {
+        DynamicJsonDocument jsonBuffer(256);
+
+        // Parse JSON từ chuỗi
+        deserializeJson(jsonBuffer, http.getString());
+
+        // Lấy giá trị "id" từ JSON
+        fingerId = jsonBuffer["id"];
+        Serial.println("ID Finger is created: " + String(fingerId));
+
+      } else {
+        Serial.println("HTTP request failed with code: " + String(httpResponseCode));
+      }
+    } else {
+      Serial.println("Error on HTTP request");
+      // to do
+    }
+  }
+  http.end();
+  return fingerId;
 }
