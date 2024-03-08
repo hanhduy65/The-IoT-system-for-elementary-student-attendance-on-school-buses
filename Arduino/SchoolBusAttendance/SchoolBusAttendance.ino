@@ -20,8 +20,11 @@
 #define FIREBASE_FUNCTION_URL "https://us-central1-attendanceschoolbus.cloudfunctions.net/"  // base URL
 #define BAUDRATE 57600                                                                       // Tốc độ baud của UART
 #define SER_BUF_SIZE 1024                                                                    // Kích thước buffer cho dữ liệu đọc từ UART
-#define LED_PIN 18                                                                           // Chân kết nối với đèn LED
+#define GREEN_PIN 18                                                                         // Chân kết nối với đèn LED
+#define RED_PIN 12                                                                           // Chân kết nối với đèn LED
+#define BLUE_PIN 13                                                                          // Chân kết nối với đèn LED
 #define BUTTON 23                                                                            //chân kết nối với Button
+// #define COMMON_ANODE                                                                         // bỏ cmt dòng này nếu dùng anode
 
 HardwareSerial MySerial(2);                                     // Sử dụng HardwareSerial với UART 2
 Adafruit_PN532 nfc(SDA_PIN, SCL_PIN);                           // Sử dụng thư viện PN532 để tương tác với cảm biến NFC
@@ -93,7 +96,9 @@ void setup(void) {
   initialize_RFID_13MHz();
 
   setupWifi();
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
   pinMode(BUTTON, INPUT);  //Cài đặt chân  ở trạng thái đọc dữ liệu
   // Tạo các nhiệm vụ
   xTaskCreatePinnedToCore(taskRFID125kHzFunction, "RFID125kHz", 10000, NULL, 1, NULL, 1);
@@ -155,6 +160,11 @@ void taskButtonFunction(void *pvParameters) {
       if (buttonStatus == HIGH) {
         // Nút được nhấn
         isRegister = !isRegister;
+        if (isRegister) {
+          setColor(0, 0, 255);  // blue
+        } else {
+          setColor(0, 255, 0);  // green
+        }
         delay(200);
       }
     }
@@ -198,10 +208,12 @@ void taskRFID125kHzFunction(void *pvParameters) {
   for (;;) {
     // Kiểm tra xem có dữ liệu từ module RFID 125kHz không
     if (HZ1050.available() > 0) {
+      setColor(255, 255, 0);  // yellow
       Serial.println(">>>>>>>>>check 125kHz");
       // Đọc và xử lý thông tin từ thẻ RFID 125kHz
-      controlLed();
       value_key_125kHz = process_RFID_125kHz();
+      delay(1000);
+      setColor(0, 0, 0);  // white
       Serial.print("value 125KHz: ");
       Serial.println(value_key_125kHz);
       delay(1000);
@@ -219,9 +231,11 @@ void taskRFID13MHzFunction(void *pvParameters) {
 
     // Kiểm tra xem có thẻ RFID 13.56MHz nằm trong phạm vi đọc hay không
     if (nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength)) {
+      setColor(255, 255, 0);  // yellow
       Serial.println(">>>>>>>>>>check 13.56Mhz");
-      controlLed();
       value_key_13MHz = process_RFID_13MHz(uid, uidLength);
+      delay(1000);
+      setColor(0, 0, 0);  // white
       Serial.print("value 13.56MHz: ");
       Serial.println(value_key_13MHz);
       delay(1000);
@@ -250,7 +264,9 @@ int getFingerprintEnroll() {
     p = finger.getImage();
     switch (p) {
       case FINGERPRINT_OK:
-        controlLed();
+        setColor(255, 255, 0);  // yellow
+        delay(1000);
+        setColor(80, 0, 80);  // purple
         Serial.println("Image taken");
         break;
       case FINGERPRINT_NOFINGER:
@@ -278,18 +294,23 @@ int getFingerprintEnroll() {
       break;
     case FINGERPRINT_IMAGEMESS:
       Serial.println("Image too messy");
+      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_PACKETRECIEVEERR:
       Serial.println("Communication error");
+      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_FEATUREFAIL:
       Serial.println("Could not find fingerprint features");
+      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_INVALIDIMAGE:
       Serial.println("Could not find fingerprint features");
+      setColor(0, 0, 0);  // white
       return id;
     default:
       Serial.println("Unknown error");
+      setColor(0, 0, 0);  // white
       return id;
   }
 
@@ -304,6 +325,12 @@ int getFingerprintEnroll() {
     p = finger.getImage();
   }
 
+  for (int i = 0; i < 3; i++) {
+    setColor(0, 0, 0);  // white
+    delay(400);
+    setColor(80, 0, 80);  // purple
+  }
+
   p = -1;
   Serial.println("Place same finger again");
   while (p != FINGERPRINT_OK) {
@@ -313,7 +340,9 @@ int getFingerprintEnroll() {
     p = finger.getImage();
     switch (p) {
       case FINGERPRINT_OK:
-        controlLed();
+        setColor(255, 255, 0);  // yellow
+        delay(1000);
+        setColor(80, 0, 80);  // purple
         Serial.println("Image taken");
         break;
       case FINGERPRINT_NOFINGER:
@@ -337,21 +366,27 @@ int getFingerprintEnroll() {
   switch (p) {
     case FINGERPRINT_OK:
       Serial.println("Image converted");
+      setColor(0, 0, 0);  // white
       break;
     case FINGERPRINT_IMAGEMESS:
       Serial.println("Image too messy");
+      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_PACKETRECIEVEERR:
       Serial.println("Communication error");
+      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_FEATUREFAIL:
       Serial.println("Could not find fingerprint features");
+      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_INVALIDIMAGE:
       Serial.println("Could not find fingerprint features");
+      setColor(0, 0, 0);  // white
       return id;
     default:
       Serial.println("Unknown error");
+      setColor(0, 0, 0);  // white
       return id;
   }
 
@@ -361,12 +396,15 @@ int getFingerprintEnroll() {
     Serial.println("Prints matched!");
   } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
     Serial.println("Communication error");
+    setColor(0, 0, 0);  // white
     return id;
   } else if (p == FINGERPRINT_ENROLLMISMATCH) {
     Serial.println("Fingerprints did not match");
+    setColor(0, 0, 0);  // white
     return id;
   } else {
     Serial.println("Unknown error");
+    setColor(0, 0, 0);  // white
     return id;
   }
 
@@ -375,19 +413,24 @@ int getFingerprintEnroll() {
     Serial.println("Stored!");
   } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
     Serial.println("Communication error");
+    setColor(0, 0, 0);  // white
     return id;
   } else if (p == FINGERPRINT_BADLOCATION) {
     Serial.println("Could not store in that location");
+    setColor(0, 0, 0);  // white
     return id;
   } else if (p == FINGERPRINT_FLASHERR) {
     Serial.println("Error writing to flash");
+    setColor(0, 0, 0);  // white
     return id;
   } else {
     Serial.println("Unknown error");
+    setColor(0, 0, 0);  // white
     return id;
   }
   Serial.print("Stored ID: ");
   Serial.print(finger_id);
+  setColor(0, 0, 0);  // white
   return finger_id;
 }
 
@@ -397,8 +440,10 @@ int getFingerprintID() {
   // Bước 1: Lấy hình ảnh từ cảm biến vân tay
   uint8_t p = finger.getImage();  //uint8_t: một kiểu dữ liệu nguyên không dấu (unsigned integer) và có độ rộng cố định là 8 bit.
   switch (p) {
-    case FINGERPRINT_OK:  //#define FINGERPRINT_OK 0x00, Command execution is complete
-      controlLed();
+    case FINGERPRINT_OK:      //#define FINGERPRINT_OK 0x00, Command execution is complete
+      setColor(255, 255, 0);  // yellow
+      delay(1000);
+      setColor(0, 0, 0);              // white
       Serial.println("Image taken");  // In ra nếu hình ảnh được lấy thành công
       break;
     case FINGERPRINT_NOFINGER:             //#define FINGERPRINT_NOFINGER 0x02         //!< No finger on the sensor
@@ -466,11 +511,16 @@ int getFingerprintID() {
   return finger.fingerID;  // Trả về ID của vân tay tìm thấy
 }
 
-//control led
-void controlLed() {
-  digitalWrite(LED_PIN, HIGH);
-  delay(1000);
-  digitalWrite(LED_PIN, LOW);  // Tắt đèn LED
+void setColor(int red, int green, int blue) {
+#ifdef COMMON_ANODE
+  red = 255 - red;
+  green = 255 - green;
+  blue = 255 - blue;
+#endif
+
+  analogWrite(RED_PIN, red);
+  analogWrite(GREEN_PIN, green);
+  analogWrite(BLUE_PIN, blue);
 }
 
 // set up Wifi
@@ -558,7 +608,7 @@ void updateAttendance(String id, int key, HTTPClient &http) {
     // to do
   } else {
     Serial.println("Error on HTTP request");
-    // to do
+    setColor(255, 0, 0);  // red
   }
   http.end();
 }
@@ -588,7 +638,7 @@ void registerIdStudentFunction(String id, bool key, String deviceId, HTTPClient 
     // to do
   } else {
     Serial.println("Error on HTTP request");
-    // to do
+    setColor(255, 0, 0);  // red
   }
   http.end();
 }
@@ -619,7 +669,7 @@ int initFingerId(HTTPClient &http) {
       }
     } else {
       Serial.println("Error on HTTP request");
-      // to do
+  setColor(255, 0, 0);  // red
     }
   }
   http.end();
