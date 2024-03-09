@@ -45,6 +45,8 @@ int value_key_finger = 0;      // biến để lưu trữ giá trị từ khóa 
 int preStateButton = LOW;  // Lưu trạng thái trước đó của nút
 bool isRegister = false;   // đăng ký/đăng nhập
 
+String deviceId = "1"; // for test only
+
 /**
 2 s:C=US, O=Google Trust Services LLC, CN=GTS Root R1
    i:C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA
@@ -179,7 +181,7 @@ void taskSendData2CloudFunction(void *pvParameters) {
     if (value_key_13MHz.length() > 0) {
       Serial.print("Leng 13.56MHz: ");
       Serial.println(value_key_13MHz.length());
-      isRegister ? registerIdStudentFunction(value_key_13MHz, false, "1", http1) : updateAttendance(value_key_13MHz, 0, http1);
+      isRegister ? registerIdStudentFunction(value_key_13MHz, false, deviceId, http1) : updateAttendance(value_key_13MHz, 0, http1);
       // Đặt lại giá trị để chuẩn bị cho lần đọc tiếp theo
       value_key_13MHz = "";
     }
@@ -188,14 +190,14 @@ void taskSendData2CloudFunction(void *pvParameters) {
     if (value_key_125kHz.length() > 0) {
       Serial.print("Leng 125KHz: ");
       Serial.println(value_key_125kHz.length());
-      isRegister ? registerIdStudentFunction(value_key_125kHz, false, "1", http2) : updateAttendance(value_key_125kHz, 0, http2);
+      isRegister ? registerIdStudentFunction(value_key_125kHz, false, deviceId, http2) : updateAttendance(value_key_125kHz, 0, http2);
       value_key_125kHz = "";
     }
 
     if (value_key_finger > 0) {
       Serial.print("value_key_finger: ");
       Serial.println(value_key_finger);
-      isRegister ? registerIdStudentFunction(String(value_key_finger), true, "1", http3) : updateAttendance(String(value_key_finger), 1, http3);
+      isRegister ? registerIdStudentFunction(String(value_key_finger), true, deviceId, http3) : updateAttendance(String(value_key_finger), 1, http3);
       value_key_finger = 0;
     }
     // Delay giữa các lần lặp của nhiệm vụ
@@ -616,18 +618,18 @@ void updateAttendance(String id, int key, HTTPClient &http) {
 /**
 đăng ký thẻ mới, vân tay mới cho học sinh chưa có
 id: id thẻ, vân tay,
-key: true: đăng ký cho vân tay, false: đăng ký RFID
+isFinger: true: đăng ký cho vân tay, false: đăng ký RFID
 deviceId: mã của mỗi hộp BlackBox // to do
 **/
-void registerIdStudentFunction(String id, bool key, String deviceId, HTTPClient &http) {
+void registerIdStudentFunction(String id, bool isFinger, String deviceId, HTTPClient &http) {
   String url = FIREBASE_FUNCTION_URL;
-  url.concat("registerId");
+  url.concat("sendRegisterStudentIdRequest");
 
   http.begin(sslClient, url);
   http.addHeader("Content-Type", "application/json");
 
   // Tạo dữ liệu JSON để gửi
-  String jsonData = "{ \"id\":" + id + ", \"deviceId\":" + deviceId + ", \"key\":" + key + "}";
+  String jsonData = "{ \"deviceId\":" + deviceId + ", \"id\":" + id + ", \"isFinger\":" + isFinger + "}";
 
   int httpResponseCode = http.POST(jsonData);
 

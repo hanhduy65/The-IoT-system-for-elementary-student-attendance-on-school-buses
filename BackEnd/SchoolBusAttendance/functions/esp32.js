@@ -136,82 +136,44 @@ exports.initFingerId = functions.https.onRequest(async (req, res) => {
   }
 });
 
-exports.registerId =
-  functions.https.onRequest(async (req, res) => {
-    try {
-      const {id, deviceId, key} = req.body;
 
-      if (!id || !deviceId) {
-        res.status(400)
+exports.sendRegisterStudentIdRequest =
+  functions.https.onRequest(async (req, response) => {
+    try {
+      const {deviceId, id, isFinger} = req.body;
+
+      if (!deviceId || !id) {
+        response.status(400)
             .json(
                 {
                   success: false,
                   message: "Parameters" +
-                " are required.",
+                "'deviceId', 'id' are required.",
                 });
         return;
       }
-      console.log("id, device, key " + id, deviceId, key);
-      // lấy student id
-      const studentIdSnapshot = await admin.database()
-          .ref(`registerIdRequests/tag${deviceId}`)
-          .orderByChild("student_id")
-          .once("value");
 
-      const isAcceptRef = admin.database()
-          .ref(`registerIdRequests/tag${deviceId}/isAccept`);
+      const requestRef = admin.database()
+          .ref(`registerIdRequests/device${deviceId}`);
 
-      const studentId = studentIdSnapshot.val().student_id;
-      const isAccept = studentIdSnapshot.val().isAccept;
-      console.log("studentId: " + studentId);
-      const rfidRef = admin.database()
-          .ref("rfiddata")
-          .orderByChild("student_id")
-          .equalTo(studentId);
-
-      console.log("<<<<<<<<<<<<<rf " + rfidRef);
-      rfidRef.once("value")
-          .then((snapshot) => {
-            snapshot.forEach(async (childSnapshot) => {
-              console.log("<<<<<<<<<<<<<refffff " + childSnapshot.ref);
-              if (isAccept) {
-                if (!key) {
-                  childSnapshot.ref.update({
-                    rfid_id: id,
-                  });
-                } else {
-                  childSnapshot.ref.update({
-                    finger_id: id,
-                  });
-                }
-                await isAcceptRef.ref.set(false);
-                return res.status(200).json(
-                    {
-                      success: true,
-                      message: "Create Id for student succesfully!",
-                    });
-              } else {
-                return res.status(400).json({
-                  success: false,
-                  message: "Not Found Request!!",
-                });
-              }
-            });
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            return res.status(500).json({
-              succes: false,
-              message: "Internal Server Error",
-            });
-          });
-    } catch (error) {
-      console.error("Error:", error);
-      return res.status(500).json(
+      await requestRef.update(
           {
-            success: false,
-            message: "Internal Server Error",
+            isAccept: true,
+            id: id,
+            isFinger: isFinger,
           },
       );
+      response.status(200).json(
+          {
+            success: true,
+            message: "Create request successfully.",
+          },
+      );
+    } catch (error) {
+      console.error("Error:", error);
+      response.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
     }
   });
