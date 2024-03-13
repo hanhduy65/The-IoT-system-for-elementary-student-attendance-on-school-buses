@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:school_bus_attendance_test/views/screens/login_screen.dart';
-import 'package:school_bus_attendance_test/views/screens/student_data.dart';
-import 'package:school_bus_attendance_test/views/screens/view_map_of_parent.dart';
 
 enum Role { parent, teacher, manager }
 
@@ -131,9 +129,8 @@ class _ChoosingRoleState extends State<ChoosingRole> {
                     });
                   },
                   child: Card(
-                    color: role == Role.manager
-                        ? Color(0xFFECAB33)
-                        : Color(0xFFCEE5ED),
+                    color:
+                        role == Role.manager ? Colors.white : Color(0xFFCEE5ED),
                     elevation: 5,
                     child: IntrinsicWidth(
                       child: Padding(
@@ -157,7 +154,6 @@ class _ChoosingRoleState extends State<ChoosingRole> {
                 SizedBox(height: 30.h),
                 ElevatedButton(
                     onPressed: () {
-                      print("choosingRole: " + widget.FCMToken!);
                       Navigator.push(
                         context,
                         MaterialPageRoute(

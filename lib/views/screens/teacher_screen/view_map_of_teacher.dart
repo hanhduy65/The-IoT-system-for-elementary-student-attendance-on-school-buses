@@ -6,7 +6,7 @@ import 'package:momentum/momentum.dart';
 import 'package:school_bus_attendance_test/controllers/login_controller.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'dart:async';
-import '../../models/user_model.dart';
+import '../../../models/user_model.dart';
 
 class ViewMapOfTeacher extends StatefulWidget {
   final User user;
@@ -103,8 +103,10 @@ class _ViewMapOfTeacherState extends MomentumState<ViewMapOfTeacher> {
     _getCurrentLocation().then((value) {
       lat = '${value.latitude}';
       long = '${value.longitude}';
+
       Momentum.controller<LoginController>(context)
-          .doSendGPS(widget.busId, double.parse(lat), double.parse(long));
+          .doSendGPS(widget.busId, lat, long);
+
       setState(() {
         locationMess = 'Latitude: $lat, Longitude:$long';
         _position = CameraPosition(
@@ -113,12 +115,13 @@ class _ViewMapOfTeacherState extends MomentumState<ViewMapOfTeacher> {
         count++;
       });
     });
+
     timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       _getCurrentLocation().then((value) {
         lat = '${value.latitude}';
         long = '${value.longitude}';
         Momentum.controller<LoginController>(context)
-            .doSendGPS(widget.busId, double.parse(lat), double.parse(long));
+            .doSendGPS(widget.busId, lat, long);
         setState(() {
           locationMess = 'Latitude: $lat, Longitude:$long';
           _position = CameraPosition(

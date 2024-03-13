@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:momentum/momentum.dart';
 
-import '../../controllers/list_history_attendance_controller.dart';
-import '../../models/list_history_attendance_model.dart';
-import '../../models/user_model.dart';
+import '../../../controllers/list_history_attendance_controller.dart';
+import '../../../models/list_history_attendance_model.dart';
+import '../../../models/user_model.dart';
 
 class ViewAttendanceHistory extends StatefulWidget {
   final String? studentId;

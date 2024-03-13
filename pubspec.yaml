@@ -50,6 +50,9 @@ dependencies:
   flutter_recaptcha_v2_compat: ^1.0.2+2
   webview_flutter: ^4.4.4
   timer_builder: ^2.0.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  shared_preferences: ^2.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

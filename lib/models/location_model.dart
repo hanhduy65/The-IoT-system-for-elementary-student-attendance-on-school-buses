@@ -1,5 +1,5 @@
 class Location {
-  final double? lat, long;
+  final String? lat, long;
 
   const Location({this.lat, this.long});
 

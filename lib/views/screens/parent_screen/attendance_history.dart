@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/views/screens/view_attandance_history.dart';
+import 'package:school_bus_attendance_test/views/screens/parent_screen/view_attandance_history.dart';
 
-import '../../controllers/list_history_attendance_controller.dart';
-import '../../models/list_history_attendance_model.dart';
-import '../../models/user_model.dart';
+import '../../../controllers/list_history_attendance_controller.dart';
+import '../../../models/list_history_attendance_model.dart';
+import '../../../models/user_model.dart';
 
 class AttendanceHistory extends StatefulWidget {
   final User user;
@@ -25,7 +25,7 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
           child: Column(
             children: [
               Text(widget.studentId ?? " ùhewuf"),
-              Text(widget.user.fullName!),
+              Text(widget.user.userName!),
               ElevatedButton(
                   onPressed: () {
                     Navigator.push(

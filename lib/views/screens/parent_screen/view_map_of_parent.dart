@@ -6,7 +6,7 @@ import 'package:momentum/momentum.dart';
 import 'package:school_bus_attendance_test/controllers/login_controller.dart';
 import 'package:school_bus_attendance_test/events/login_events.dart';
 import 'dart:async';
-import '../../models/user_model.dart';
+import '../../../models/user_model.dart';
 
 class ViewMapOfParent extends StatefulWidget {
   final String? token;
@@ -19,7 +19,7 @@ class ViewMapOfParent extends StatefulWidget {
 }
 
 class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
-  late String lat, long;
+  String lat = "0", long = "0";
   String locationMess = "Current Location of the user";
   Timer? timer;
 
@@ -78,7 +78,7 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
                       markerId: MarkerId('MyMarker'),
                       position: LatLng(double.parse(lat), double.parse(long)),
                       // Vị trí của đánh dấu
-                      infoWindow: InfoWindow(
+                      infoWindow: const InfoWindow(
                         title: 'My Location',
                       ),
                     ),
@@ -108,14 +108,16 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
       invoke: (event) {
         if (event.location.lat != null) {
           if (event.location.lat! != "0" && event.location.long! != "0") {
-            lat = event.location.lat!.toString();
-            long = event.location.long!.toString();
-            setState(() {
-              locationMess = 'Latitude: $lat, Longitude:$long';
-              _position = CameraPosition(
-                  target: LatLng(double.parse(lat), double.parse(long)),
-                  zoom: 17);
-              isInitGGMap = true;
+            lat = event.location.lat!;
+            long = event.location.long!;
+            WidgetsBinding.instance?.addPostFrameCallback((_) {
+              setState(() {
+                locationMess = 'Latitude: $lat, Longitude:$long';
+                _position = CameraPosition(
+                    target: LatLng(double.parse(lat), double.parse(long)),
+                    zoom: 17);
+                isInitGGMap = true;
+              });
             });
           }
         }

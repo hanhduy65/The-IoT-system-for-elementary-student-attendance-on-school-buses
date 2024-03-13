@@ -1,4 +1,6 @@
 import 'package:momentum/momentum.dart';
+import 'package:school_bus_attendance_test/utils/global.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../events/login_events.dart';
 import '../models/login_model.dart';
@@ -48,6 +50,14 @@ class LoginController extends MomentumController<LoginModel> {
         roleId: profile.roleId,
         userId: profile.userId,
         userName: profile.userName);
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    // secureStorage.write(key: "key_username", value: profile.userName);
+    // secureStorage.write(key: "key_roleId", value: profile.roleId.toString());
+    // secureStorage.write(key: "key_userId", value: profile.userId);
+    sp.setString('key_username', profile.userName!);
+    sp.setString('key_roleId', profile.roleId.toString());
+    sp.setString('key_userId', profile.userId!);
+    sp.setBool('isLogin', true);
     print(user.toString());
     sendEvent(AuthEvent(
         action: profile.isAuthSuccessful,
@@ -63,9 +73,19 @@ class LoginController extends MomentumController<LoginModel> {
         message: profile.authResponseMessage));
   }
 
-  Future<void> doSendGPS(int busId, double latitude, double longitude) async {
+  Future<void> doSendGPS(int busId, String latitude, String longitude) async {
     final authService = service<AuthServices>();
     final profile = await authService.sendGPS(busId, latitude, longitude);
+    sendEvent(AuthEvent(
+        action: profile.isAuthSuccessful,
+        message: profile.authResponseMessage));
+  }
+
+  Future<void> doSendRequestRegisterStudent(
+      int deviceId, String studentId) async {
+    final authService = service<AuthServices>();
+    final profile =
+        await authService.sendRequestRegisterStudent(deviceId, studentId);
     sendEvent(AuthEvent(
         action: profile.isAuthSuccessful,
         message: profile.authResponseMessage));

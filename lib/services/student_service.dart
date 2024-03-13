@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/controllers/student_list_controller.dart';
-import 'package:school_bus_attendance_test/models/student_list_model.dart';
 
 import '../controllers/attendance_controller.dart';
 import '../controllers/student_controller.dart';
@@ -35,6 +33,32 @@ class StudentServices extends MomentumService {
       return (response as List).map((e) => attendance.fromJson(e)).toList();
     } on Exception catch (e) {
       print("Get list student on bus error: $e");
+      return [];
+    }
+  }
+
+  Future<List<StudentModel>> getStudentRegisterRFID(int busId) async {
+    print("service + getStudentRegisterRFID");
+    String url = "$serverURL/getStudentsNoRFID?busId=$busId";
+    try {
+      final response = await httpService.get(url);
+      StudentModel student = StudentController().init();
+      return (response as List).map((e) => student.fromJson(e)).toList();
+    } on Exception catch (e) {
+      print("Get list student register RFID error: $e");
+      return [];
+    }
+  }
+
+  Future<List<StudentModel>> getStudentRegisterFingerprint(int busId) async {
+    print("service + getStudentRegisterFingerprint");
+    String url = "$serverURL/getStudentsNoFinger?busId=$busId";
+    try {
+      final response = await httpService.get(url);
+      StudentModel student = StudentController().init();
+      return (response as List).map((e) => student.fromJson(e)).toList();
+    } on Exception catch (e) {
+      print("Get list student register Fingerprint error: $e");
       return [];
     }
   }
