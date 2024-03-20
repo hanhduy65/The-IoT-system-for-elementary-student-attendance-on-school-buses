@@ -20,11 +20,12 @@
 #define FIREBASE_FUNCTION_URL "https://us-central1-attendanceschoolbus.cloudfunctions.net/"  // base URL
 #define BAUDRATE 57600                                                                       // Tốc độ baud của UART
 #define SER_BUF_SIZE 1024                                                                    // Kích thước buffer cho dữ liệu đọc từ UART
-#define GREEN_PIN 18                                                                         // Chân kết nối với đèn LED
+#define GREEN_PIN 13                                                                         // Chân kết nối với đèn LED
 #define RED_PIN 12                                                                           // Chân kết nối với đèn LED
-#define BLUE_PIN 13                                                                          // Chân kết nối với đèn LED
+#define BLUE_PIN 18                                                                          // Chân kết nối với đèn LED
 #define BUTTON 23                                                                            //chân kết nối với Button
-// #define COMMON_ANODE                                                                         // bỏ cmt dòng này nếu dùng anode
+#define COMMON_ANODE                                                                         // bỏ cmt dòng này nếu dùng anode
+#define BUZZLE 14
 
 HardwareSerial MySerial(2);                                     // Sử dụng HardwareSerial với UART 2
 Adafruit_PN532 nfc(SDA_PIN, SCL_PIN);                           // Sử dụng thư viện PN532 để tương tác với cảm biến NFC
@@ -45,7 +46,7 @@ int value_key_finger = 0;      // biến để lưu trữ giá trị từ khóa 
 int preStateButton = LOW;  // Lưu trạng thái trước đó của nút
 bool isRegister = false;   // đăng ký/đăng nhập
 
-String deviceId = "1"; // for test only
+String deviceId = "1";  // for test only
 
 /**
 2 s:C=US, O=Google Trust Services LLC, CN=GTS Root R1
@@ -87,6 +88,14 @@ const char *root_ca =
   "-----END CERTIFICATE-----\n";
 
 void setup(void) {
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+  pinMode(BUTTON, INPUT);   //Cài đặt chân  ở trạng thái đọc dữ liệu
+  pinMode(BUZZLE, OUTPUT);  //còi
+  digitalWrite(BUZZLE, 1);
+
+
   Serial.begin(9600);                                  // Khởi động cổng serial cho PC
   MySerial.setRxBufferSize(SER_BUF_SIZE);              // Đặt kích thước buffer đọc cho Serial
   MySerial.begin(BAUDRATE, SERIAL_8N1, RxPin, TxPin);  // Bắt đầu Serial với tốc độ baud và cấu hình nhất định
@@ -98,10 +107,7 @@ void setup(void) {
   initialize_RFID_13MHz();
 
   setupWifi();
-  pinMode(GREEN_PIN, OUTPUT);
-  pinMode(RED_PIN, OUTPUT);
-  pinMode(BLUE_PIN, OUTPUT);
-  pinMode(BUTTON, INPUT);  //Cài đặt chân  ở trạng thái đọc dữ liệu
+
   // Tạo các nhiệm vụ
   xTaskCreatePinnedToCore(taskRFID125kHzFunction, "RFID125kHz", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskRFID13MHzFunction, "RFID13MHz", 10000, NULL, 1, NULL, 1);
@@ -174,6 +180,12 @@ void taskButtonFunction(void *pvParameters) {
   }
 }
 
+void Buzzle() {
+  digitalWrite(BUZZLE, 0);
+  delay(100);
+  digitalWrite(BUZZLE, 1);
+}
+
 //upload lên server
 void taskSendData2CloudFunction(void *pvParameters) {
   for (;;) {
@@ -210,12 +222,10 @@ void taskRFID125kHzFunction(void *pvParameters) {
   for (;;) {
     // Kiểm tra xem có dữ liệu từ module RFID 125kHz không
     if (HZ1050.available() > 0) {
-      setColor(255, 255, 0);  // yellow
+      Buzzle();
       Serial.println(">>>>>>>>>check 125kHz");
       // Đọc và xử lý thông tin từ thẻ RFID 125kHz
       value_key_125kHz = process_RFID_125kHz();
-      delay(1000);
-      setColor(0, 0, 0);  // white
       Serial.print("value 125KHz: ");
       Serial.println(value_key_125kHz);
       delay(1000);
@@ -233,11 +243,9 @@ void taskRFID13MHzFunction(void *pvParameters) {
 
     // Kiểm tra xem có thẻ RFID 13.56MHz nằm trong phạm vi đọc hay không
     if (nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength)) {
-      setColor(255, 255, 0);  // yellow
+      Buzzle();
       Serial.println(">>>>>>>>>>check 13.56Mhz");
       value_key_13MHz = process_RFID_13MHz(uid, uidLength);
-      delay(1000);
-      setColor(0, 0, 0);  // white
       Serial.print("value 13.56MHz: ");
       Serial.println(value_key_13MHz);
       delay(1000);
@@ -266,9 +274,7 @@ int getFingerprintEnroll() {
     p = finger.getImage();
     switch (p) {
       case FINGERPRINT_OK:
-        setColor(255, 255, 0);  // yellow
-        delay(1000);
-        setColor(80, 0, 80);  // purple
+        Buzzle();
         Serial.println("Image taken");
         break;
       case FINGERPRINT_NOFINGER:
@@ -342,9 +348,7 @@ int getFingerprintEnroll() {
     p = finger.getImage();
     switch (p) {
       case FINGERPRINT_OK:
-        setColor(255, 255, 0);  // yellow
-        delay(1000);
-        setColor(80, 0, 80);  // purple
+        Buzzle();
         Serial.println("Image taken");
         break;
       case FINGERPRINT_NOFINGER:
@@ -443,8 +447,7 @@ int getFingerprintID() {
   uint8_t p = finger.getImage();  //uint8_t: một kiểu dữ liệu nguyên không dấu (unsigned integer) và có độ rộng cố định là 8 bit.
   switch (p) {
     case FINGERPRINT_OK:      //#define FINGERPRINT_OK 0x00, Command execution is complete
-      setColor(255, 255, 0);  // yellow
-      delay(1000);
+      Buzzle();
       setColor(0, 0, 0);              // white
       Serial.println("Image taken");  // In ra nếu hình ảnh được lấy thành công
       break;
@@ -566,7 +569,7 @@ void setupWifi() {
   // Nếu không có hoặc kết nối thất bại, tạo AP để cấu hình
   Serial.println("Starting WiFi configuration portal.");
   WiFiManager wifiManager;
-  if (!wifiManager.autoConnect("AutoConnectAP")) {
+  if (!wifiManager.autoConnect("AutoConnectAP2")) {
     Serial.println("Failed to connect and hit timeout");
     // Đợi 10 giây để cho bạn nhấn reset
     delay(10000);
@@ -610,7 +613,6 @@ void updateAttendance(String id, int key, HTTPClient &http) {
     // to do
   } else {
     Serial.println("Error on HTTP request");
-    setColor(255, 0, 0);  // red
   }
   http.end();
 }
@@ -640,7 +642,6 @@ void registerIdStudentFunction(String id, bool isFinger, String deviceId, HTTPCl
     // to do
   } else {
     Serial.println("Error on HTTP request");
-    setColor(255, 0, 0);  // red
   }
   http.end();
 }
@@ -671,7 +672,7 @@ int initFingerId(HTTPClient &http) {
       }
     } else {
       Serial.println("Error on HTTP request");
-  setColor(255, 0, 0);  // red
+      // setColor(255, 0, 0);  // red
     }
   }
   http.end();
