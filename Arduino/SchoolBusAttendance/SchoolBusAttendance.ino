@@ -104,6 +104,8 @@ void setup(void) {
   nfc.begin();                                         // Bắt đầu kết nối với đầu đọc RFID 13.56MHz
   sslClient.setCACert(root_ca);                        // Sử dụng chứng chỉ SSL
 
+  setColor(0, 255, 0);  // green
+
   initialize_RFID_13MHz();
 
   setupWifi();
@@ -302,23 +304,18 @@ int getFingerprintEnroll() {
       break;
     case FINGERPRINT_IMAGEMESS:
       Serial.println("Image too messy");
-      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_PACKETRECIEVEERR:
       Serial.println("Communication error");
-      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_FEATUREFAIL:
       Serial.println("Could not find fingerprint features");
-      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_INVALIDIMAGE:
       Serial.println("Could not find fingerprint features");
-      setColor(0, 0, 0);  // white
       return id;
     default:
       Serial.println("Unknown error");
-      setColor(0, 0, 0);  // white
       return id;
   }
 
@@ -334,9 +331,8 @@ int getFingerprintEnroll() {
   }
 
   for (int i = 0; i < 3; i++) {
-    setColor(0, 0, 0);  // white
-    delay(400);
-    setColor(80, 0, 80);  // purple
+    Buzzle();
+    delay(100);
   }
 
   p = -1;
@@ -372,27 +368,21 @@ int getFingerprintEnroll() {
   switch (p) {
     case FINGERPRINT_OK:
       Serial.println("Image converted");
-      setColor(0, 0, 0);  // white
       break;
     case FINGERPRINT_IMAGEMESS:
       Serial.println("Image too messy");
-      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_PACKETRECIEVEERR:
       Serial.println("Communication error");
-      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_FEATUREFAIL:
       Serial.println("Could not find fingerprint features");
-      setColor(0, 0, 0);  // white
       return id;
     case FINGERPRINT_INVALIDIMAGE:
       Serial.println("Could not find fingerprint features");
-      setColor(0, 0, 0);  // white
       return id;
     default:
       Serial.println("Unknown error");
-      setColor(0, 0, 0);  // white
       return id;
   }
 
@@ -402,15 +392,12 @@ int getFingerprintEnroll() {
     Serial.println("Prints matched!");
   } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
     Serial.println("Communication error");
-    setColor(0, 0, 0);  // white
     return id;
   } else if (p == FINGERPRINT_ENROLLMISMATCH) {
     Serial.println("Fingerprints did not match");
-    setColor(0, 0, 0);  // white
     return id;
   } else {
     Serial.println("Unknown error");
-    setColor(0, 0, 0);  // white
     return id;
   }
 
@@ -419,24 +406,19 @@ int getFingerprintEnroll() {
     Serial.println("Stored!");
   } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
     Serial.println("Communication error");
-    setColor(0, 0, 0);  // white
     return id;
   } else if (p == FINGERPRINT_BADLOCATION) {
     Serial.println("Could not store in that location");
-    setColor(0, 0, 0);  // white
     return id;
   } else if (p == FINGERPRINT_FLASHERR) {
     Serial.println("Error writing to flash");
-    setColor(0, 0, 0);  // white
     return id;
   } else {
     Serial.println("Unknown error");
-    setColor(0, 0, 0);  // white
     return id;
   }
   Serial.print("Stored ID: ");
   Serial.print(finger_id);
-  setColor(0, 0, 0);  // white
   return finger_id;
 }
 
@@ -446,9 +428,8 @@ int getFingerprintID() {
   // Bước 1: Lấy hình ảnh từ cảm biến vân tay
   uint8_t p = finger.getImage();  //uint8_t: một kiểu dữ liệu nguyên không dấu (unsigned integer) và có độ rộng cố định là 8 bit.
   switch (p) {
-    case FINGERPRINT_OK:      //#define FINGERPRINT_OK 0x00, Command execution is complete
+    case FINGERPRINT_OK:  //#define FINGERPRINT_OK 0x00, Command execution is complete
       Buzzle();
-      setColor(0, 0, 0);              // white
       Serial.println("Image taken");  // In ra nếu hình ảnh được lấy thành công
       break;
     case FINGERPRINT_NOFINGER:             //#define FINGERPRINT_NOFINGER 0x02         //!< No finger on the sensor
@@ -672,7 +653,6 @@ int initFingerId(HTTPClient &http) {
       }
     } else {
       Serial.println("Error on HTTP request");
-      // setColor(255, 0, 0);  // red
     }
   }
   http.end();
