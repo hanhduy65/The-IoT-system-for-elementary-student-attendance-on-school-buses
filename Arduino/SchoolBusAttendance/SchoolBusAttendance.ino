@@ -20,16 +20,16 @@
 #define FIREBASE_FUNCTION_URL "https://us-central1-attendanceschoolbus.cloudfunctions.net/"  // base URL
 #define BAUDRATE 57600                                                                       // Tốc độ baud của UART
 #define SER_BUF_SIZE 1024                                                                    // Kích thước buffer cho dữ liệu đọc từ UART
-#define GREEN_PIN 13                                                                         // Chân kết nối với đèn LED
-#define RED_PIN 12                                                                           // Chân kết nối với đèn LED
-#define BLUE_PIN 18                                                                          // Chân kết nối với đèn LED
-#define BUTTON 23                                                                            //chân kết nối với Button
+#define GREEN_PIN 33                                                                         // Chân kết nối với đèn LED
+#define RED_PIN 32                                                                           // Chân kết nối với đèn LED
+#define BLUE_PIN 25                                                                          // Chân kết nối với đèn LED
+#define BUTTON 34                                                                            //chân kết nối với Button
 #define COMMON_ANODE                                                                         // bỏ cmt dòng này nếu dùng anode
-#define BUZZLE 14
+#define BUZZLE 26
 
 HardwareSerial MySerial(2);                                     // Sử dụng HardwareSerial với UART 2
 Adafruit_PN532 nfc(SDA_PIN, SCL_PIN);                           // Sử dụng thư viện PN532 để tương tác với cảm biến NFC
-SoftwareSerial HZ1050(4, 3);                                    // Sử dụng SoftwareSerial để giao tiếp với một thiết bị khác (module có mã HZ1050)
+SoftwareSerial HZ1050(23, 3);                                    // Sử dụng SoftwareSerial để giao tiếp với một thiết bị khác (module có mã HZ1050)
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&MySerial);  // Sử dụng thư viện Adafruit_Fingerprint để tương tác với cảm biến vân tay
 Preferences preferences;                                        // Đối tượng Preferences để quản lý lưu trữ thông tin cài đặt trong bộ nhớ flash
 WiFiClientSecure sslClient;                                     // Sử dụng thư viện WiFiClientSecure để thiết lập kết nối an toàn với máy chủ
