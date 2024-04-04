@@ -41,7 +41,7 @@ Future<void> showNotification(
   const detail = AndroidNotificationDetails("BUSMATE", "BUSMATE_TEXT",
       channelDescription: "description",
       importance: Importance.max,
-      priority: Priority.high,
+      priority: Priority.max,
       ticker: "ticker");
   const notificationDetails = NotificationDetails(android: detail);
   await plugin.show(Random().nextInt(1000), message?.notification?.title ?? "",

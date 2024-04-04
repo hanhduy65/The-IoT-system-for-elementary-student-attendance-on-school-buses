@@ -1,4 +1,4 @@
-name: school_bus_attendance_test
+name: busmate
 description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -42,17 +42,19 @@ dependencies:
   flutter_screenutil: ^5.9.0
   google_maps_flutter: ^2.5.3
   internet_connection_checker: ^1.0.0+1
+  nb_utils: ^6.0.2
+  flutter_local_notifications: ^17.0.0
   firebase_core: ^2.14.0
   firebase_messaging: ^14.6.4
-  flutter_local_notifications: ^16.3.2
   geolocator: ^10.1.0
   crypto: ^3.0.3
   flutter_recaptcha_v2_compat: ^1.0.2+2
-  webview_flutter: ^4.4.4
+  webview_flutter: ^4.7.0
   timer_builder: ^2.0.0
   flutter_map: ^6.1.0
-  latlong2: ^0.9.0
   shared_preferences: ^2.2.2
+  url_launcher: ^6.2.5
+  rename: ^3.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -81,6 +83,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/image_avt/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -27,44 +27,55 @@ class BoxedInputDecoration extends InputDecoration {
   @override
   // TODO: implement labelText
   String? get labelText => displayLabelText;
+
   @override
   // TODO: implement hintText
   String? get hintText => displayHintText;
+
   @override
   // TODO: implement enabledBorder
   InputBorder? get enabledBorder => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(50),
-      borderSide: const BorderSide(color: Color(0xFFF4FAFF)));
+        borderRadius: BorderRadius.circular(50),
+        borderSide: const BorderSide(color: Color(0xFFF4FAFF)),
+      );
+
   @override
   // TODO: implement focusedBorder
   InputBorder? get focusedBorder => OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
-        borderSide: const BorderSide(color: Color(0xFF159afd)),
+        borderSide: const BorderSide(color: Color(0xFF93EF7B)),
       );
+
   @override
   // TODO: implement errorBorder
   InputBorder? get errorBorder => OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
         borderSide: const BorderSide(color: Colors.red),
       );
+
   @override
   // TODO: implement focusedErrorBorder
   InputBorder? get focusedErrorBorder => OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
         borderSide: const BorderSide(color: Colors.red),
       );
+
   @override
   // TODO: implement contentPadding
-  EdgeInsetsGeometry? get contentPadding => const EdgeInsets.all(14);
+  EdgeInsetsGeometry? get contentPadding => const EdgeInsets.all(8);
+
   @override
   // TODO: implement prefix
   Widget? get prefix => customPrefixWidget;
+
   @override
   // TODO: implement suffix
   Widget? get suffix => customSuffixWidget;
+
   @override
   // TODO: implement prefixIcon
   Widget? get prefixIcon => displayPrefixIcon;
+
   @override
   // TODO: implement suffixIcon
   Widget? get suffixIcon => displaySuffixIcon ?? ss;
@@ -76,9 +87,11 @@ class BoxedInputDecoration extends InputDecoration {
   @override
   // TODO: implement fillColor
   Color? get fillColor => filledColor;
+
   @override
   // TODO: implement filled
   bool? get filled => true;
+
   @override
   // TODO: implement prefixText
   String? get prefixText => prefixString;

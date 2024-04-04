@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/controllers/student_register_fingerprint_controller.dart';
+import 'package:busmate/controllers/student_register_fingerprint_controller.dart';
 
 import '../../../controllers/login_controller.dart';
 import '../../../events/login_events.dart';
 import '../../../models/student_register_fingerprint_model.dart';
 import '../../../models/user_model.dart';
+import '../../widgets/card_student_register.dart';
 import '../detail_student.dart';
 
 class RegisterStudentByFingerprint extends StatefulWidget {
@@ -40,128 +41,156 @@ class _RegisterStudentByFingerprintState
                 listStudents.controller
                     .getStudentRegisterFingerprintList(widget.busId!);
               },
-              child: listStudents.studentList.isEmpty
-                  ? const Center(
-                      child:
-                          Text("Danh sách học sinh cần đăng ký vân tay trống"),
-                    )
-                  : ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      shrinkWrap: false,
-                      itemCount: listStudents.studentList.length,
-                      itemBuilder: (context, index) => Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w),
-                            child: InkWell(
-                              child: Card(
-                                color: Color(0xFF58952D),
-                                child: ListTile(
-                                  title: Text(listStudents
-                                          .studentList[index].studentName ??
-                                      ""),
-                                ),
-                              ),
-                              onTap: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text(
-                                            'Yêu cầu đăng kí vân tay'),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            RichText(
-                                              text: TextSpan(
-                                                text: 'Học sinh:  ',
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                ),
-                                                children: <TextSpan>[
-                                                  TextSpan(
-                                                    text: listStudents
-                                                            .studentList[index]
-                                                            .studentName ??
-                                                        " ",
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 20.sp, // In đậm
-                                                      color: Color(
-                                                          0xFF58952D), // Màu khác
+              child: listStudents.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : listStudents.studentList.isEmpty
+                      ? const Center(
+                          child: Text(
+                              "Danh sách học sinh cần đăng ký vân tay trống"),
+                        )
+                      : Container(
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage(
+                                    "assets/images/background_register.png"),
+                                fit: BoxFit.fill,
+                                opacity: 0.5),
+                          ),
+                          child: ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              shrinkWrap: false,
+                              itemCount: listStudents.studentList.length,
+                              itemBuilder: (context, index) => Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10.w),
+                                    child: InkWell(
+                                      child: Card(
+                                        color: Color(0xFF81C75F).withAlpha(180),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: CardStudentRegister(
+                                              name: listStudents
+                                                  .studentList[index]
+                                                  .studentName),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text(
+                                                    'Yêu cầu đăng kí vân tay'),
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        text: 'Học sinh:  ',
+                                                        style: const TextStyle(
+                                                          color: Colors.black,
+                                                        ),
+                                                        children: <TextSpan>[
+                                                          TextSpan(
+                                                            text: listStudents
+                                                                    .studentList[
+                                                                        index]
+                                                                    .studentName ??
+                                                                " ",
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 20
+                                                                  .sp, // In đậm
+                                                              color: Color(
+                                                                  0xFF58952D), // Màu khác
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
+                                                    SizedBox(height: 10.h),
+                                                    Row(
+                                                      children: [
+                                                        Text("ID thiết bị: "),
+                                                        SizedBox(width: 5.w),
+                                                        Expanded(
+                                                          child: TextField(
+                                                            textInputAction:
+                                                                TextInputAction
+                                                                    .next,
+                                                            controller:
+                                                                idDeviceController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                              hintText:
+                                                                  "Nhập vào id thiết bị...",
+                                                              focusedBorder: OutlineInputBorder(
+                                                                  borderSide:
+                                                                      BorderSide(
+                                                                          width:
+                                                                              2,
+                                                                          color:
+                                                                              Color(0xFF58952D))),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                                actions: <Widget>[
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: const Text('Hủy'),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Momentum.controller<
+                                                                  LoginController>(
+                                                              context)
+                                                          .doSendRequestRegisterStudent(
+                                                              int.parse(
+                                                                  idDeviceController
+                                                                      .text),
+                                                              listStudents
+                                                                  .studentList[
+                                                                      index]
+                                                                  .studentId!)
+                                                          .then((_) {
+                                                        Future.delayed(
+                                                            Duration(
+                                                                seconds: 1),
+                                                            () {
+                                                          setState(() {
+                                                            Momentum.controller<
+                                                                        StudentRegisterFingerprintListController>(
+                                                                    context)
+                                                                .getStudentRegisterFingerprintList(
+                                                                    widget
+                                                                        .busId!);
+                                                          });
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        });
+                                                      });
+                                                    },
+                                                    child: const Text('Gửi'),
                                                   ),
                                                 ],
-                                              ),
-                                            ),
-                                            SizedBox(height: 10.h),
-                                            Row(
-                                              children: [
-                                                Text("ID thiết bị: "),
-                                                SizedBox(width: 5.w),
-                                                Expanded(
-                                                  child: TextField(
-                                                    textInputAction:
-                                                        TextInputAction.next,
-                                                    controller:
-                                                        idDeviceController,
-                                                    decoration:
-                                                        const InputDecoration(
-                                                      hintText:
-                                                          "Nhập vào id thiết bị...",
-                                                      focusedBorder: OutlineInputBorder(
-                                                          borderSide: BorderSide(
-                                                              width: 2,
-                                                              color: Color(
-                                                                  0xFF58952D))),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                        actions: <Widget>[
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text('Hủy'),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Momentum.controller<
-                                                      LoginController>(context)
-                                                  .doSendRequestRegisterStudent(
-                                                      int.parse(
-                                                          idDeviceController
-                                                              .text),
-                                                      listStudents
-                                                          .studentList[index]
-                                                          .studentId!)
-                                                  .then((_) {
-                                                Future.delayed(
-                                                    Duration(seconds: 1), () {
-                                                  setState(() {
-                                                    Momentum.controller<
-                                                                StudentRegisterFingerprintListController>(
-                                                            context)
-                                                        .getStudentRegisterFingerprintList(
-                                                            widget.busId!);
-                                                  });
-                                                  Navigator.of(context).pop();
-                                                });
-                                              });
-                                            },
-                                            child: const Text('Gửi'),
-                                          ),
-                                        ],
-                                      );
-                                    });
-                              },
-                            ),
-                          )));
+                                              );
+                                            });
+                                      },
+                                    ),
+                                  )),
+                        ));
         });
   }
 

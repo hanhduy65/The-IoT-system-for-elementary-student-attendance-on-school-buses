@@ -4,9 +4,11 @@ import 'package:momentum/momentum.dart';
 
 import '../controllers/attendance_controller.dart';
 import '../controllers/student_controller.dart';
+import '../controllers/student_on_bus_list_controller.dart';
 import '../models/attendance_history_model.dart';
 import '../models/attendance_model.dart';
 import '../models/student_model.dart';
+import '../models/student_on_bus_list_model.dart';
 import '../utils/global.dart';
 import 'general_api_service.dart';
 
@@ -24,16 +26,17 @@ class StudentServices extends MomentumService {
     }
   }
 
-  Future<List<AttendanceModel>> getStudentOnBus(int busId) async {
+  Future<StudentOnBusListModel> getStudentOnBus(int busId) async {
     String url = "$serverURL/getStudentOnBus";
     // print(requestModel.toJson());
     try {
       final response = await httpService.post(url, body: {'busId': busId});
-      AttendanceModel attendance = AttendanceController().init();
-      return (response as List).map((e) => attendance.fromJson(e)).toList();
+      StudentOnBusListModel attendance = StudentOnBusListController().init();
+      return attendance.fromJson(response);
     } on Exception catch (e) {
       print("Get list student on bus error: $e");
-      return [];
+      return StudentOnBusListModel(StudentOnBusListController(),
+          studentList: []);
     }
   }
 

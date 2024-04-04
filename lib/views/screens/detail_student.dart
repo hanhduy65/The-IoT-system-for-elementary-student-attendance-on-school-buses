@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/controllers/student_controller.dart';
-import 'package:school_bus_attendance_test/models/student_model.dart';
+import 'package:busmate/controllers/student_controller.dart';
+import 'package:busmate/models/student_model.dart';
 
 class StudentDetail extends StatefulWidget {
   final String studentId;

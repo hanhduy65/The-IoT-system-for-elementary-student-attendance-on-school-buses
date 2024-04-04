@@ -9,17 +9,18 @@ class ListHistoryAttendanceController
   @override
   init() {
     return ListHistoryAttendanceModel(this,
-        attendanceList: const [], isFetched: false);
+        attendanceList: const [], isFetched: false, isLoading: true);
   }
 
   Future<void> getAttendanceList(String studentId) async {
+    model.update(isLoading: true);
+    print("isLoading đang là true");
     try {
       final studentService = service<StudentServices>();
       final fetchedStudentList =
           await studentService.getHistoryAttendanceById(studentId);
-      model.update(
-        attendanceList: fetchedStudentList,
-      );
+      model.update(attendanceList: fetchedStudentList, isLoading: false);
+      print("isLoading đang là false");
     } catch (e) {
       print("get list history attendance error: $e");
     }

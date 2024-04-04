@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/controllers/student_register_RFID_controller.dart';
-import 'package:school_bus_attendance_test/views/screens/teacher_screen/register_RFID.dart';
-import 'package:school_bus_attendance_test/views/screens/teacher_screen/register_fingerprint.dart';
+import 'package:busmate/controllers/student_register_RFID_controller.dart';
+import 'package:busmate/views/screens/teacher_screen/register_RFID.dart';
+import 'package:busmate/views/screens/teacher_screen/register_fingerprint.dart';
 
 import '../../../models/student_register_RFID_model.dart';
 import '../../../models/user_model.dart';
@@ -25,13 +25,41 @@ class RegisterStudent extends StatelessWidget {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            title: const Center(child: Text("Đăng kí cho học sinh mới")),
-            bottom: const TabBar(
-              tabs: [
-                Tab(text: "Đăng kí RFID"),
-                Tab(text: "Đăng kí vân tay"),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Hello, teacher",
+                  style: TextStyle(fontSize: 16.sp, color: Colors.black87),
+                ),
+                Text(
+                  "Luu Minh Huong",
+                  style: TextStyle(
+                      fontSize: 20.sp,
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold),
+                )
               ],
             ),
+            actions: [
+              Padding(
+                padding: EdgeInsets.only(right: 10.0),
+                child: CircleAvatar(
+                  radius: 30.0,
+                  backgroundImage: AssetImage("assets/image_avt/images1.jpg"),
+                  backgroundColor: Colors.transparent,
+                ),
+              ),
+            ],
+            bottom: TabBar(
+              indicatorColor: Theme.of(context).colorScheme.secondary,
+              labelColor: Theme.of(context).colorScheme.secondary,
+              tabs: [
+                Tab(text: "Register RFID/NFC"),
+                Tab(text: "FINGERPRINT"),
+              ],
+            ),
+            automaticallyImplyLeading: false,
           ),
           body: TabBarView(
             children: [

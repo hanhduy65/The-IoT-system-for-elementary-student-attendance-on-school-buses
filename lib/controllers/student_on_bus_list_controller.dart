@@ -8,32 +8,25 @@ class StudentOnBusListController
     extends MomentumController<StudentOnBusListModel> {
   @override
   init() {
-    return StudentOnBusListModel(this, studentList: const [], isFetched: false);
+    return StudentOnBusListModel(this,
+        studentList: const [],
+        isFetched: false,
+        isLoading: true,
+        studentsOffBusCount: 0,
+        studentsOnBusCount: 0);
   }
 
   Future<void> getStudentList(int busId) async {
-    //   bool hasInternet = await InternetConnectionChecker().hasConnection;
-    //   if (hasInternet) {
-    //     try {
-    //       final studentService = service<StudentServices>();
-    //       final fetchedStudentList = await studentService.getStudentOnBus();
-    //       model.update(
-    //         studentList: fetchedStudentList,
-    //       );
-    //     } catch (e) {
-    //       print("search customer list error: $e");
-    //     }
-    //   } else {
-    //     sendEvent(AuthEvent(action: false, message: "No internet connection"));
-    //   }
-    // }
-
+    print("get list student on bus");
+    model.update(isLoading: true);
     try {
       final studentService = service<StudentServices>();
       final fetchedStudentList = await studentService.getStudentOnBus(busId);
       model.update(
-        studentList: fetchedStudentList,
-      );
+          studentList: fetchedStudentList.studentList,
+          isLoading: false,
+          studentsOnBusCount: fetchedStudentList.studentsOnBusCount,
+          studentsOffBusCount: fetchedStudentList.studentsOffBusCount);
     } catch (e) {
       print("get student on bus list error: $e");
     }

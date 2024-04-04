@@ -13,70 +13,12 @@ class GeneralApiService {
     "Content-Type": "application/x-www-form-urlencoded"
   };
 
-  Map<String, String> formDataHeaders = {
-    "Content-Type": "multipart/form-data",
-    "access_token":
-        "pSyVjOUksocJgMgQqXbpDyteIxxyWbqpeKBaZqkUwnbBEiTYqBRWAvlSymLSUqdCcsBHbkjxpAYjqZZisgONEDsxBAosvQWVwrLNVAeEtfpqUcmfcSUsKcaLMgxLGFZY"
-  };
-  Map<String, String> cookies = {};
-
-  void _updateCookie(http.Response response) {
-    String? allSetCookie = response.headers['set-cookie'];
-    // String? accessToken = response.bodyBytes
-
-    if (allSetCookie != null) {
-      var setCookies = allSetCookie.split(',');
-
-      for (var setCookie in setCookies) {
-        var cookies = setCookie.split(';');
-
-        for (var cookie in cookies) {
-          _setCookie(cookie);
-        }
-      }
-
-      headers['cookie'] = _generateCookieHeader();
-      // downloadingHeaders["cookie"] = _generateCookieHeader();
-      urlEncodedHeaders['cookie'] = _generateCookieHeader();
-      formDataHeaders['cookie'] = _generateCookieHeader();
-    }
-  }
-
-  void _setCookie(String? rawCookie) {
-    if (rawCookie != null) {
-      var keyValue = rawCookie.split('=');
-      if (keyValue.length == 2) {
-        var key = keyValue[0].trim();
-        var value = keyValue[1];
-
-        // ignore keys that aren't cookies
-        if (key == 'path' || key == 'expires') return;
-
-        cookies[key] = value;
-        // defaultCookies[key] = value;
-      }
-    }
-  }
-
-  String _generateCookieHeader() {
-    String cookie = "";
-
-    for (var key in cookies.keys) {
-      if (cookie.isNotEmpty) cookie += ";";
-      cookie += "$key=${cookies[key]!}";
-    }
-
-    return cookie;
-  }
-
   Future<dynamic> get(String url, {headers}) {
     return http
         .get(Uri.parse(url), headers: headers)
         .then((http.Response response) {
       final String res = utf8.decode(response.bodyBytes);
       final int statusCode = response.statusCode;
-
-      _updateCookie(response);
 
       if (statusCode == 200 || statusCode == 400) {
         return _decoder.convert(res);
@@ -97,10 +39,9 @@ class GeneralApiService {
 
       final int statusCode = response.statusCode;
 
-      _updateCookie(response);
-
       if (statusCode == 200 ||
           statusCode == 400 ||
+          statusCode == 401 ||
           statusCode == 201 ||
           statusCode == 500) {
         return _decoder.convert(res);
@@ -123,8 +64,6 @@ class GeneralApiService {
 
       final int statusCode = response.statusCode;
 
-      _updateCookie(response);
-
       if (statusCode == 200 || statusCode == 400) {
         return _decoder.convert(res);
       } else {
@@ -141,8 +80,6 @@ class GeneralApiService {
         .then((http.Response response) {
       final String res = response.body;
       final int statusCode = response.statusCode;
-
-      _updateCookie(response);
 
       if (statusCode < 200 || statusCode > 400) {
         throw Exception("Error while fetching data");
@@ -178,8 +115,6 @@ class GeneralApiService {
 
     final String res = utf8.decode(result.bodyBytes);
     final int statusCode = result.statusCode;
-
-    _updateCookie(result);
 
     if (statusCode < 200 || statusCode > 400) {
       print(statusCode);

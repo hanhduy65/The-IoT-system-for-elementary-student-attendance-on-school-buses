@@ -34,4 +34,17 @@ class BusController extends MomentumController<BusModel> {
       print("start or end bus error: $e");
     }
   }
+
+  Future<void> CheckAttendanceGetInOrOutBus(int busId, bool isOnBus) async {
+    try {
+      final busService = service<BusServices>();
+      final profile =
+          await busService.CheckAttendanceGetInOrOutBus(busId, isOnBus);
+      sendEvent(AuthEvent(
+          action: profile.isAuthSuccessful,
+          message: profile.authResponseMessage));
+    } catch (e) {
+      print("check attendance get in/ out bus: $e");
+    }
+  }
 }

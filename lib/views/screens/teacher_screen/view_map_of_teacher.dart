@@ -3,10 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/controllers/login_controller.dart';
-import 'package:timer_builder/timer_builder.dart';
+import 'package:busmate/controllers/login_controller.dart';
 import 'dart:async';
 import '../../../models/user_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ViewMapOfTeacher extends StatefulWidget {
   final User user;
@@ -26,18 +26,36 @@ class _ViewMapOfTeacherState extends MomentumState<ViewMapOfTeacher> {
   Future<Position> _getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bạn chưa bật location của thiết bị'),
+          backgroundColor: Colors.red, // Thay đổi màu sắc ở đây
+        ),
+      );
       return Future.error('Location services are disabled');
     }
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bạn đã từ chối quyền truy cập location'),
+            backgroundColor: Colors.red, // Thay đổi màu sắc ở đây
+          ),
+        );
         return Future.error('Location services are denied');
       }
     }
     if (permission == LocationPermission.deniedForever) {
       Future.error(
           'Location services are permanently denied, we cannot request');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bạn đã từ chối quyền truy cập location vĩnh viễn'),
+          backgroundColor: Colors.red, // Thay đổi màu sắc ở đây
+        ),
+      );
     }
     return await Geolocator.getCurrentPosition();
   }
@@ -56,46 +74,101 @@ class _ViewMapOfTeacherState extends MomentumState<ViewMapOfTeacher> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Text(locationMess),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     _getCurrentLocation().then((value) {
-            //       lat = '${value.latitude}';
-            //       long = '${value.longitude}';
-            //       Momentum.controller<LoginController>(context).doSendGPS(
-            //           widget.busId, double.parse(lat), double.parse(long));
-            //       setState(() {
-            //         locationMess = 'Latitude: $lat, Longitude:$long';
-            //         _position = CameraPosition(
-            //             target: LatLng(double.parse(lat), double.parse(long)),
-            //             zoom: 17);
-            //         isInitGGMap = true;
-            //         count++;
-            //       });
-            //     });
-            //   },
-            //   child: Text("Get current location"),
-            // ),
-            Visibility(
-              visible: isInitGGMap,
-              child: Container(
-                width: double.infinity,
-                height: 1.sh * 1.2,
-                child: GoogleMap(
-                  mapType: MapType.normal,
-                  myLocationEnabled: true,
-                  initialCameraPosition: _position,
-                  onMapCreated: _onMapCreated,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(60.0),
+          child: AppBar(
+            backgroundColor: Color(0xFFECAB33),
+            automaticallyImplyLeading: false,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Hello, teacher",
+                  style: TextStyle(fontSize: 16.sp, color: Colors.white70),
+                ),
+                Text(
+                  "Luu Minh Huong",
+                  style: TextStyle(
+                      fontSize: 20.sp,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
+            actions: [
+              Padding(
+                padding: EdgeInsets.only(right: 10.0),
+                child: CircleAvatar(
+                  radius: 30.0,
+                  backgroundImage: AssetImage("assets/image_avt/images1.jpg"),
+                  backgroundColor: Colors.transparent,
                 ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+        body: Visibility(
+          visible: isInitGGMap,
+          child: Stack(
+            children: [
+              GoogleMap(
+                mapType: MapType.normal,
+                myLocationEnabled: true,
+                initialCameraPosition: _position,
+                onMapCreated: _onMapCreated,
+              ),
+              Positioned(
+                bottom: 0,
+                left: 10,
+                right: 10,
+                child: Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const ListTile(
+                          title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Bus id: 01"),
+                          Text("Plate No: 17B - 17026"),
+                        ],
+                      )),
+                      Container(
+                        height: 1, // Chiều cao của đường chia
+                        color: Colors.grey, // Màu của đường chia
+                      ),
+                      ListTile(
+                        leading: Image.asset(
+                          "assets/icons/icon_driver.png",
+                          width: 40,
+                          height: 40,
+                        ),
+                        title: Text(
+                          "Driver",
+                          style: TextStyle(
+                              color: Color(0xFFDC7D32),
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text("Ngo Van Long / 0986825596",
+                            style: TextStyle(fontSize: 14.sp)),
+                        trailing: InkWell(
+                          child: const Icon(
+                            Icons.call,
+                            color: Color(0xFFDC7D32),
+                          ),
+                          onTap: () => _makePhoneCall("0986825596"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ));
   }
 
   @override
@@ -131,5 +204,17 @@ class _ViewMapOfTeacherState extends MomentumState<ViewMapOfTeacher> {
         });
       });
     });
+  }
+}
+
+_makePhoneCall(String phoneNumber) async {
+  final Uri launchUri = Uri(
+    scheme: 'tel',
+    path: phoneNumber,
+  );
+  if (await canLaunchUrl(launchUri)) {
+    await launchUrl(launchUri);
+  } else {
+    throw 'Could not launch ';
   }
 }

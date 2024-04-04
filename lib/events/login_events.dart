@@ -1,4 +1,4 @@
-import 'package:school_bus_attendance_test/models/login_model.dart';
+import 'package:busmate/models/login_model.dart';
 
 import '../models/location_model.dart';
 import '../models/user_model.dart';

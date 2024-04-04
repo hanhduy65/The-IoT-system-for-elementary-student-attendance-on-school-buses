@@ -54,7 +54,7 @@ class AuthResponse extends MomentumModel<AuthResponseController> {
         roleId: json?["role_id"] ?? 0,
         userId: json?["user_id"] ?? " ",
         userName: json?["user_name"] ?? " ",
-        phone: json?["phone"],
+        phone: json?["phone"] ?? " ",
         fullName: json?["full_name"] ?? " ");
   }
 

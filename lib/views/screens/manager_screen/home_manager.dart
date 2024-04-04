@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:school_bus_attendance_test/views/screens/register_screen.dart';
+import 'package:busmate/views/screens/register_screen.dart';
 
 import '../../../models/user_model.dart';
 

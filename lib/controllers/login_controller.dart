@@ -1,5 +1,5 @@
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/utils/global.dart';
+import 'package:busmate/utils/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../events/login_events.dart';
@@ -44,25 +44,31 @@ class LoginController extends MomentumController<LoginModel> {
     print("Loggin in with model: ${requestModel.toJson()}");
     final authService = service<AuthServices>();
     final profile = await authService.login(requestModel);
-    User user = User(
-        fullName: profile.userName,
-        // phone: profile.phone,
-        roleId: profile.roleId,
-        userId: profile.userId,
-        userName: profile.userName);
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    // secureStorage.write(key: "key_username", value: profile.userName);
-    // secureStorage.write(key: "key_roleId", value: profile.roleId.toString());
-    // secureStorage.write(key: "key_userId", value: profile.userId);
-    sp.setString('key_username', profile.userName!);
-    sp.setString('key_roleId', profile.roleId.toString());
-    sp.setString('key_userId', profile.userId!);
-    sp.setBool('isLogin', true);
-    print(user.toString());
-    sendEvent(AuthEvent(
-        action: profile.isAuthSuccessful,
-        message: profile.authResponseMessage,
-        user: user));
+    print("Thông tin tài khoản sau login" + profile.toString());
+    if ((profile.isAuthSuccessful)!) {
+      User user = User(
+          fullName: profile.fullName,
+          phone: profile.phone,
+          roleId: profile.roleId,
+          userId: profile.userId,
+          userName: profile.userName);
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      sp.setString('key_username', profile.userName!);
+      sp.setString('key_roleId', profile.roleId.toString());
+      sp.setString('key_userId', profile.userId!);
+      sp.setString('key_fullname', profile.fullName!);
+      sp.setString('key_phone', profile.phone!);
+      sp.setBool('isLogin', true);
+      print(user.toString());
+      sendEvent(AuthEvent(
+          action: profile.isAuthSuccessful,
+          message: profile.authResponseMessage,
+          user: user));
+    } else {
+      sendEvent(AuthEvent(
+          action: profile.isAuthSuccessful,
+          message: profile.authResponseMessage));
+    }
   }
 
   Future<void> doSendFCMToken(String token, String parentId) async {
@@ -92,6 +98,7 @@ class LoginController extends MomentumController<LoginModel> {
   }
 
   Future<void> doGetGPS(String parentId) async {
+    print("controller getGPS");
     final authService = service<AuthServices>();
     final profile = await authService.getGPSByParentId(parentId);
     sendEvent(LocationEvent(location: profile));
@@ -119,10 +126,10 @@ class AuthResponseController extends MomentumController<AuthResponse> {
   AuthResponse init() {
     // TODO: implement init
     return AuthResponse(this,
-        isAuthSuccessful: false,
+        isAuthSuccessful: true,
         authResponseMessage: '',
         fullName: "",
-        //    phone: "",
+        phone: "",
         userId: "",
         roleId: 0,
         userName: " ");

@@ -1,30 +1,28 @@
-import 'dart:async';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/controllers/attendance_controller.dart';
-import 'package:school_bus_attendance_test/controllers/bus_controller.dart';
-import 'package:school_bus_attendance_test/controllers/login_controller.dart';
-import 'package:school_bus_attendance_test/controllers/register_controller.dart';
-import 'package:school_bus_attendance_test/controllers/student_controller.dart';
-import 'package:school_bus_attendance_test/controllers/student_list_controller.dart';
-import 'package:school_bus_attendance_test/controllers/student_on_bus_list_controller.dart';
-import 'package:school_bus_attendance_test/firebase/firebase_messaging_setting.dart';
-import 'package:school_bus_attendance_test/firebase/local_notification.dart';
-import 'package:school_bus_attendance_test/models/user_model.dart';
-import 'package:school_bus_attendance_test/services/auth_service.dart';
-import 'package:school_bus_attendance_test/services/bus_service.dart';
-import 'package:school_bus_attendance_test/services/student_service.dart';
-import 'package:school_bus_attendance_test/utils/global.dart';
-import 'package:school_bus_attendance_test/views/screens/choose_role.dart';
-import 'package:school_bus_attendance_test/views/screens/login_screen.dart';
-import 'package:school_bus_attendance_test/views/screens/manager_screen/home_manager.dart';
-import 'package:school_bus_attendance_test/views/screens/parent_screen/home_parent.dart';
-import 'package:school_bus_attendance_test/views/screens/teacher_screen/home_teacher.dart';
-import 'package:school_bus_attendance_test/views/screens/teacher_screen/infor_teacher.dart';
+import 'package:busmate/controllers/attendance_controller.dart';
+import 'package:busmate/controllers/bus_controller.dart';
+import 'package:busmate/controllers/login_controller.dart';
+import 'package:busmate/controllers/register_controller.dart';
+import 'package:busmate/controllers/student_controller.dart';
+import 'package:busmate/controllers/student_list_controller.dart';
+import 'package:busmate/controllers/student_on_bus_list_controller.dart';
+import 'package:busmate/firebase/firebase_messaging_setting.dart';
+import 'package:busmate/firebase/local_notification.dart';
+import 'package:busmate/models/user_model.dart';
+import 'package:busmate/services/auth_service.dart';
+import 'package:busmate/services/bus_service.dart';
+import 'package:busmate/services/student_service.dart';
+import 'package:busmate/utils/global.dart';
+import 'package:busmate/views/screens/choose_role.dart';
+import 'package:busmate/views/screens/login_screen.dart';
+import 'package:busmate/views/screens/manager_screen/home_manager.dart';
+import 'package:busmate/views/screens/parent_screen/home_parent.dart';
+import 'package:busmate/views/screens/teacher_screen/home_teacher.dart';
+import 'package:busmate/views/screens/teacher_screen/infor_teacher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/list_history_attendance_controller.dart';
@@ -63,9 +61,9 @@ Momentum momentum = Momentum(
       designSize: const Size(390, 844),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) => const MaterialApp(
+      builder: (context, child) => MaterialApp(
               home: Scaffold(
-            body: Text("này là Splash screen"),
+            body: Image.asset("assets/images/background_check1.png"),
           ))),
   child: const MyApp(),
 );
@@ -83,6 +81,8 @@ class _MyAppState extends State<MyApp> {
   String username = "testdemo";
   String? roleId = "";
   String? userId = "";
+  String? fullname = "";
+  String? phone = "";
   bool? isLogin = false;
 
   @override
@@ -114,6 +114,10 @@ class _MyAppState extends State<MyApp> {
     print("roleId ${roleId}");
     userId = await sp.getString('key_userId') ?? "";
     print("userId ${userId}");
+    fullname = await sp.getString('key_fullname') ?? "";
+    print("fullname ${fullname}");
+    phone = await sp.getString('key_phone') ?? "";
+    print("phone ${phone}");
     isLogin = sp.getBool('isLogin') ?? false;
     print(isLogin.toString());
     if (isLogin!) {
@@ -126,17 +130,34 @@ class _MyAppState extends State<MyApp> {
   Widget NavigatorHomeScreen(int? roleId) {
     if (roleId == 1) {
       return HomeParent(
-          user: User(userName: username, roleId: 1, userId: userId),
+          user: User(
+              userName: username,
+              roleId: 1,
+              userId: userId,
+              phone: phone,
+              fullName: fullname),
           token: FCMToken);
     } else if (roleId == 3) {
       return HomeTeacher(
-          user: User(userName: username, roleId: 3, userId: userId));
+          user: User(
+              userName: username,
+              roleId: 3,
+              userId: userId,
+              phone: phone,
+              fullName: fullname));
     } else if (roleId == 4) {
       return HomeManager(
-          user: User(userName: username, roleId: 4, userId: userId));
+          user: User(
+              userName: username,
+              roleId: 4,
+              userId: userId,
+              phone: phone,
+              fullName: fullname));
     }
-    return Center(
-      child: Text("aaaaaaaaa"),
+    return const Scaffold(
+      body: Center(
+        child: Text("Lỗi không tìm thấy trang chủ"),
+      ),
     );
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/views/screens/parent_screen/view_attandance_history.dart';
+import 'package:busmate/views/screens/parent_screen/view_attandance_history.dart';
 
 import '../../../controllers/list_history_attendance_controller.dart';
 import '../../../models/list_history_attendance_model.dart';

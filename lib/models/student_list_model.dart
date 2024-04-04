@@ -1,5 +1,5 @@
 import 'package:momentum/momentum.dart';
-import 'package:school_bus_attendance_test/models/student_model.dart';
+import 'package:busmate/models/student_model.dart';
 
 import '../controllers/student_controller.dart';
 import '../controllers/student_list_controller.dart';

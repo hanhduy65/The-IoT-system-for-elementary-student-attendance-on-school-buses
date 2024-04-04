@@ -1,4 +1,4 @@
-package com.example.school_bus_attendance_test
+package net.linhpham.busmate
 
 import io.flutter.embedding.android.FlutterActivity
 

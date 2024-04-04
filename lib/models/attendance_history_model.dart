@@ -1,4 +1,4 @@
-import 'package:school_bus_attendance_test/models/detail_history_attendance_model.dart';
+import 'package:busmate/models/detail_history_attendance_model.dart';
 
 class HistoryAttendanceModel {
   final String? date;

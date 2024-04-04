@@ -37,57 +37,59 @@ class _ViewAttendanceHistoryState extends State<ViewAttendanceHistory> {
                 appBar: AppBar(title: Text("Xem lịch sử điểm danh")),
                 body: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Visibility(
-                      visible: listAttandance.isFetched,
-                      child: SingleChildScrollView(
+                  child: listAttandance.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
                           child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: ScrollPhysics(),
-                            itemCount: listAttandance.attendanceList.length,
-                            itemBuilder: (context, index) => Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  listAttandance.attendanceList[index].date ??
-                                      "",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: ScrollPhysics(),
+                              itemCount: listAttandance.attendanceList.length,
+                              itemBuilder: (context, index) => Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    listAttandance.attendanceList[index].date ??
+                                        "",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ),
-                                ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: ScrollPhysics(),
-                                    itemCount: listAttandance
-                                        .attendanceList[index]
-                                        .listHistoryAttend!
-                                        .length,
-                                    itemBuilder: (context, indexx) => Card(
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 15, vertical: 12),
-                                            child: Column(
-                                              children: [
-                                                Text(listAttandance
-                                                    .attendanceList[index]
-                                                    .listHistoryAttend![indexx]
-                                                    .eventType!),
-                                                Text(listAttandance
-                                                    .attendanceList[index]
-                                                    .listHistoryAttend![indexx]
-                                                    .timestamp!),
-                                              ],
+                                  ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: ScrollPhysics(),
+                                      itemCount: listAttandance
+                                          .attendanceList[index]
+                                          .listHistoryAttend!
+                                          .length,
+                                      itemBuilder: (context, indexx) => Card(
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 15, vertical: 12),
+                                              child: Column(
+                                                children: [
+                                                  Text(listAttandance
+                                                      .attendanceList[index]
+                                                      .listHistoryAttend![
+                                                          indexx]
+                                                      .eventType!),
+                                                  Text(listAttandance
+                                                      .attendanceList[index]
+                                                      .listHistoryAttend![
+                                                          indexx]
+                                                      .timestamp!),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ))
-                              ],
+                                          ))
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ))),
+                          ],
+                        )),
                 ),
               ),
             );
