@@ -33,7 +33,6 @@ SoftwareSerial HZ1050(23, 3);                                    // Sử dụng 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&MySerial);  // Sử dụng thư viện Adafruit_Fingerprint để tương tác với cảm biến vân tay
 Preferences preferences;                                        // Đối tượng Preferences để quản lý lưu trữ thông tin cài đặt trong bộ nhớ flash
 WiFiClientSecure sslClient;                                     // Sử dụng thư viện WiFiClientSecure để thiết lập kết nối an toàn với máy chủ
-
 // Đối tượng HTTPClient để thực hiện yêu cầu HTTP
 HTTPClient http1;
 HTTPClient http2;
@@ -47,6 +46,9 @@ int preStateButton = LOW;  // Lưu trạng thái trước đó của nút
 bool isRegister = false;   // đăng ký/đăng nhập
 
 String deviceId = "1";  // for test only
+
+const int Analog_channel_pin = 35;
+float voltage_value; // Chuyển sang kiểu float để lưu giá trị điện áp.
 
 /**
 2 s:C=US, O=Google Trust Services LLC, CN=GTS Root R1
@@ -104,11 +106,19 @@ void setup(void) {
   nfc.begin();                                         // Bắt đầu kết nối với đầu đọc RFID 13.56MHz
   sslClient.setCACert(root_ca);                        // Sử dụng chứng chỉ SSL
 
-  setColor(0, 255, 0);  // green
-
-  initialize_RFID_13MHz();
-
+  initialize_RFID_13MHz(); 
   setupWifi();
+ 
+  // Authenticate fingerprint before continuing
+  while (true) {
+    value_key_finger = getFingerprintID();
+    if (value_key_finger == 1) {
+      break; // Authentication successful
+    } else {
+      Serial.println("Authentication failed. Please try again.");  // In ra thông báo nếu xác thực ID không thành công
+    }
+    delay(100);
+  }
 
   // Tạo các nhiệm vụ
   xTaskCreatePinnedToCore(taskRFID125kHzFunction, "RFID125kHz", 10000, NULL, 1, NULL, 1);
@@ -116,10 +126,35 @@ void setup(void) {
   xTaskCreatePinnedToCore(taskSendData2CloudFunction, "sendData2Cloud", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskFingerprintFunction, "Fingerprint", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskButtonFunction, "Button", 10000, NULL, 1, NULL, 1);
+  Serial.println("Authentication success. System ready to operate.");
+  setColor(0, 255, 0);  // green
 }
+
 
 void loop(void) {
   // Empty loop as tasks are managed by FreeRTOS Scheduler
+}
+
+// hàm đo thời lương pin còn bao nhiêu volt
+void battery() {
+  int ADC_VALUE = analogRead(Analog_channel_pin);
+  Serial.print("ADC VALUE = ");
+  Serial.println(ADC_VALUE);
+
+  // Tính toán điện áp đầu vào dựa trên công thức chia áp
+  float Vin = ((float)ADC_VALUE * 3.3) / 4095.0; // Tính toán điện áp đầu vào (trước khi chia áp)
+  //3v3: đây là giá trị điện áp tham chiếu. ADC sẽ chuyển đổi tín hiệu analog thành một giá trị số dựa trên độ lớn của tín hiệu analog so với điện áp tham chiếu này.
+  //4095: Đây là giá trị tối đa mà ADC có thể đo được. Trong hầu hết các vi điều khiển thông thường, ADC thường có độ phân giải cố định, tức là số bit mà nó có thể chuyển đổi. 4095 là giá trị tối đa mà một ADC 12-bit có thể đo được. 
+  //Mỗi bit bổ sung sẽ làm tăng độ chia nhỏ giữa các giá trị được đo, cung cấp độ chính xác cao hơn.
+
+  // Áp dụng công thức chia áp để tính toán điện áp đầu vào thực tế đến chân ADC
+  voltage_value = (Vin * 2.02) ; //+0.46; //
+  //2,01: tổng 2 điện trở
+  //0,46: sai số 
+
+  Serial.print("Voltage = ");
+  Serial.print(voltage_value);
+  Serial.println(" volts");
 }
 
 //Hàm khởi tạo cho module RFID 13.56MHz
@@ -179,6 +214,7 @@ void taskButtonFunction(void *pvParameters) {
       }
     }
     preStateButton = buttonStatus;
+    battery();
   }
 }
 
