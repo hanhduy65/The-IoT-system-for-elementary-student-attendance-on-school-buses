@@ -1,4 +1,4 @@
-package net.linhpham.busmate
+package com.fubusmate.busmate
 
 import io.flutter.embedding.android.FlutterActivity
 

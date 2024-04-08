@@ -77,11 +77,11 @@ class _HomeParentState extends MomentumState<HomeParent> {
 
           List<Widget> _widgetOptions = <Widget>[
             MainScreenParent(),
-            AttendanceHistory(
-                user: widget.user, studentId: stuController.model.studentId),
             ViewMapOfParent(
               user: widget.user,
             ),
+            AttendanceHistory(
+                user: widget.user, studentId: stuController.model.studentId),
             InfoAccount(
               user: widget.user,
             ),
@@ -102,12 +102,12 @@ class _HomeParentState extends MomentumState<HomeParent> {
                   label: 'Home',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.border_color),
-                  label: 'Attendance',
-                ),
-                BottomNavigationBarItem(
                   icon: Icon(Icons.location_on),
                   label: 'Tracking',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.border_color),
+                  label: 'Attendance',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),

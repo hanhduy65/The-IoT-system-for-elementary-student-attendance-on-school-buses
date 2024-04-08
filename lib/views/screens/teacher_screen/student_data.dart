@@ -24,7 +24,8 @@ class ViewStudentData extends StatefulWidget {
 class _ViewStudentDataState extends MomentumState<ViewStudentData> {
   bool isStart = false;
   int _elapsedSeconds = 0;
-  int takeAttended = -1;
+  int takeAttended =
+      -1; // -1 : chưa bắt đầu, 0: điểm danh lên, 1: điểm danh xuống
 
   void getDataIsStart() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -93,8 +94,8 @@ class _ViewStudentDataState extends MomentumState<ViewStudentData> {
                                 padding: EdgeInsets.only(right: 10.0),
                                 child: CircleAvatar(
                                   radius: 30.0,
-                                  backgroundImage: AssetImage(
-                                      "assets/image_avt/images1.jpg"),
+                                  backgroundImage:
+                                      AssetImage("assets/image_avt/avt.jpg"),
                                   backgroundColor: Colors.transparent,
                                 ),
                               ),
@@ -273,14 +274,16 @@ class _ViewStudentDataState extends MomentumState<ViewStudentData> {
                                                   "assets/icons/icon_attendance.png",
                                                   width: 50)
                                               : takeAttended == 0
-                                                  ? const Text("01/05",
+                                                  ? Text(
+                                                      "${formatNumber(listStudents.studentsOnBusCount!)}/${formatNumber(listStudents.studentList.length)}",
                                                       style: TextStyle(
                                                           color:
                                                               Color(0xFF3947D5),
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontSize: 28))
-                                                  : const Text("04/05",
+                                                  : Text(
+                                                      "${formatNumber(listStudents.studentsOffBusCount!)}/${formatNumber(listStudents.studentList.length)}",
                                                       style: TextStyle(
                                                           color:
                                                               Color(0xFF3947D5),
@@ -300,14 +303,14 @@ class _ViewStudentDataState extends MomentumState<ViewStudentData> {
                                                 )
                                               : takeAttended == 0
                                                   ? const Text(
-                                                      "GET OUT",
+                                                      "GET IN",
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                     )
                                                   : const Text(
-                                                      "GET IN",
+                                                      "GET OUT",
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:
@@ -395,7 +398,7 @@ class _ViewStudentDataState extends MomentumState<ViewStudentData> {
 
   void _startTimer() {
     Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (isStart && _elapsedSeconds < 100) {
+      if (isStart && _elapsedSeconds < 150) {
         Momentum.controller<StudentOnBusListController>(context)
             .getStudentList(widget.busId!);
         setState(() {
@@ -415,4 +418,8 @@ class _ViewStudentDataState extends MomentumState<ViewStudentData> {
     print("có vào didChangeDependencies");
     getDataIsStart();
   }
+}
+
+String formatNumber(int number) {
+  return number < 10 ? '0$number' : number.toString();
 }

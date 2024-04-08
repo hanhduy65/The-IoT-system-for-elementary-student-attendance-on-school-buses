@@ -53,18 +53,17 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
                 "Le Duc Minh",
                 style: TextStyle(
                     fontSize: 20.sp,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold),
               )
             ],
           ),
-          actions: [
+          actions: const [
             Padding(
               padding: EdgeInsets.only(right: 10.0),
               child: CircleAvatar(
                 radius: 30.0,
-                backgroundImage: NetworkImage(
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThuWKm5rlVyc9oN3WSsKcGPwRehbxGOAxqTY2mgaFsCQ&s'),
+                backgroundImage: AssetImage('assets/image_avt/avt_parent.jpg'),
                 backgroundColor: Colors.transparent,
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:busmate/views/screens/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -95,15 +96,17 @@ class _MyAppState extends State<MyApp> {
     // secureStorage.read(key: "key_userId").then((value) =>
     //     {userId = value ?? "", print("userId: ${userId ?? " null"}")});
     isLoginFun();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      FCMToken = await setupInteractedMessage();
-      setState(() {
-        FCMTokenLoaded = true;
-        secureStorage.write(key: "key_FCMToken", value: FCMToken);
-      });
-    });
+    setUpFCMToken();
     isAndroidPermissionGranted(flutterLocalNotificationPlugin);
     requestNotificationPermission(flutterLocalNotificationPlugin);
+  }
+
+  void setUpFCMToken() async {
+    FCMToken = await setupInteractedMessage();
+    setState(() {
+      FCMTokenLoaded = true;
+      secureStorage.write(key: "key_FCMToken", value: FCMToken);
+    });
   }
 
   void isLoginFun() async {
@@ -167,11 +170,12 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-        home: isLogin!
-            ? NavigatorHomeScreen(int.tryParse(roleId!))
-            : FCMTokenLoaded
-                ? ChoosingRole(FCMToken: FCMToken)
-                : LoadingScreen());
+        // home: isLogin!
+        //     ? NavigatorHomeScreen(int.tryParse(roleId!))
+        //     : FCMTokenLoaded
+        //         ? ChoosingRole(FCMToken: FCMToken)
+        //         : LoadingScreen()
+        home: WelcomeScreen());
   }
 }
 

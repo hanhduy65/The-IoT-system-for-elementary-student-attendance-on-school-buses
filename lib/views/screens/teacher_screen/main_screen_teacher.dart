@@ -11,6 +11,7 @@ class MainScreenTeacher extends StatefulWidget {
 
 class _MainScreenTeacherState extends State<MainScreenTeacher> {
   late final WebViewController _controller;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -67,7 +68,7 @@ class _MainScreenTeacherState extends State<MainScreenTeacher> {
               padding: EdgeInsets.only(right: 10.0),
               child: CircleAvatar(
                 radius: 30.0,
-                backgroundImage: AssetImage("assets/image_avt/images1.jpg"),
+                backgroundImage: AssetImage("assets/image_avt/avt.jpg"),
                 backgroundColor: Colors.transparent,
               ),
             ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class MainScreenParent extends StatefulWidget {
-  const MainScreenParent({super.key});
+class MainScreenManager extends StatefulWidget {
+  const MainScreenManager({super.key});
 
   @override
-  State<MainScreenParent> createState() => _MainScreenParentState();
+  State<MainScreenManager> createState() => _MainScreenManagerState();
 }
 
-class _MainScreenParentState extends State<MainScreenParent> {
+class _MainScreenManagerState extends State<MainScreenManager> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +20,7 @@ class _MainScreenParentState extends State<MainScreenParent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello, parent",
+                "Hello, Manager",
                 style: TextStyle(fontSize: 16.sp, color: Colors.black87),
               ),
               Text(
@@ -56,47 +56,6 @@ class _MainScreenParentState extends State<MainScreenParent> {
               fit: BoxFit.fill,
             ),
             SizedBox(height: 20.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15.0),
-              child: Card(
-                elevation: 0,
-                color: Color(0xFF509F31),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    radius: 30.0,
-                    backgroundImage: AssetImage("assets/image_avt/images4.jpg"),
-                  ),
-                  title: Text(
-                    "Le Duc Tri",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  subtitle: Text(
-                    "4A3 - HS43279",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  trailing: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.transparent, // Màu nền trùng với màu cha
-                      borderRadius:
-                          BorderRadius.circular(10), // Đường viền cong
-                      border: Border.all(
-                        color: Color(0xFFECAB33), // Màu viền
-                        width: 1, // Độ rộng của viền
-                      ),
-                    ),
-                    child: TextButton(
-                      onPressed: () {
-                        // Xử lý sự kiện khi nút được nhấn
-                      },
-                      child: Text("Safe on bus",
-                          style: TextStyle(
-                              color: Color(0xFFF3AD29),
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ),
-              ),
-            ),
             SizedBox(height: 20.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 15.0),

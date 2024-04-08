@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:busmate/views/screens/login_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/input_decoration.dart';
 
@@ -173,7 +175,7 @@ class _ChoosingRoleState extends State<ChoosingRole> {
                             : Color(0xFFCEE5ED),
                         elevation: 0,
                         child: Container(
-                          width: 1.sw * 1 / 3,
+                          width: 1.sw * 0.38,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10.0, vertical: 8),
                           child: Center(
@@ -223,7 +225,7 @@ class _ChoosingRoleState extends State<ChoosingRole> {
                             : Color(0xFFCEE5ED),
                         elevation: 0,
                         child: Container(
-                          width: 1.sw * 1 / 3,
+                          width: 1.sw * 0.38,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10.0, vertical: 8),
                           child: Center(
@@ -263,7 +265,7 @@ class _ChoosingRoleState extends State<ChoosingRole> {
                             : Color(0xFFCEE5ED),
                         elevation: 0,
                         child: Container(
-                          width: 1.sw * 1 / 3,
+                          width: 1.sw * 0.38,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10.0, vertical: 8),
                           child: Center(
@@ -394,13 +396,39 @@ class _ChoosingRoleState extends State<ChoosingRole> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-          width: 1.sw,
-          height: 1.sh * 1 / 3,
-          child: Image.asset(
-            "assets/images/background.jpg",
-            fit: BoxFit.fill,
-          )),
+      bottomNavigationBar: Stack(children: [
+        Container(
+            width: 1.sw,
+            height: 1.sh * 1 / 3,
+            child: Image.asset(
+              "assets/images/background.jpg",
+              fit: BoxFit.fill,
+            )),
+        Positioned(
+            bottom: 12,
+            left: 10,
+            child: RichText(
+              text: TextSpan(
+                text: 'https://fubusmate.com',
+                style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    decoration: TextDecoration.underline,
+                    color: Theme.of(context).primaryColor),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    _launchURL('https://fubusmate.com');
+                  },
+              ),
+            ))
+      ]),
     );
+  }
+}
+
+void _launchURL(String url) async {
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url));
+  } else {
+    throw 'Could not launch $url';
   }
 }

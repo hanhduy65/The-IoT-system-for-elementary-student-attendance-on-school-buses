@@ -46,7 +46,7 @@ class RegisterStudent extends StatelessWidget {
                 padding: EdgeInsets.only(right: 10.0),
                 child: CircleAvatar(
                   radius: 30.0,
-                  backgroundImage: AssetImage("assets/image_avt/images1.jpg"),
+                  backgroundImage: AssetImage("assets/image_avt/avt.jpg"),
                   backgroundColor: Colors.transparent,
                 ),
               ),

@@ -8,15 +8,15 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:905474992403:android:a1203f0b570bea8bec52e6",
+        "mobilesdk_app_id": "1:905474992403:android:d14669f708588394ec52e6",
         "android_client_info": {
-          "package_name": "com.example.school_bus_attendance"
+          "package_name": "com.example.school_bus_attendance_test"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBXqE3r165tHPwStVp1z-k9C_Uzp7A7kbI"
+          "current_key": "AIzaSyBh6w1bsJrOVqa9S94FY9ZxmCtxptaYNZU"
         }
       ],
       "services": {
@@ -27,15 +27,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:905474992403:android:d14669f708588394ec52e6",
+        "mobilesdk_app_id": "1:905474992403:android:baf1503e42d3e4f3ec52e6",
         "android_client_info": {
-          "package_name": "com.example.school_bus_attendance_test"
+          "package_name": "com.fubusmate.busmate"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBXqE3r165tHPwStVp1z-k9C_Uzp7A7kbI"
+          "current_key": "AIzaSyBh6w1bsJrOVqa9S94FY9ZxmCtxptaYNZU"
         }
       ],
       "services": {
@@ -54,7 +54,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBXqE3r165tHPwStVp1z-k9C_Uzp7A7kbI"
+          "current_key": "AIzaSyBh6w1bsJrOVqa9S94FY9ZxmCtxptaYNZU"
         }
       ],
       "services": {

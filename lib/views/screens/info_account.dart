@@ -69,75 +69,70 @@ class InfoAccount extends StatelessWidget {
                                           padding: EdgeInsets.symmetric(
                                               vertical: 25.h, horizontal: 30.w),
                                           // color: const Color(0xffF5F7FD),
-                                          child: Table(
-                                              // mainAxisAlignment:
-                                              //     MainAxisAlignment.spaceBetween,
-                                              columnWidths: {
-                                                0: const FlexColumnWidth(),
-                                                1: FixedColumnWidth(26.w),
-                                                2: const FlexColumnWidth(2)
-                                              },
-                                              children: [
-                                                TableRow(children: [
-                                                  Text("SĐT:",
-                                                      style: detailTextStyle),
-                                                  const SizedBox.shrink(),
-                                                  Text(
-                                                      user?.phone.toString() ??
-                                                          "",
-                                                      style: detailTextStyle,
-                                                      softWrap: false,
-                                                      overflow:
-                                                          TextOverflow.ellipsis)
-                                                ]),
-                                                TableRow(children: [
-                                                  SizedBox(height: 10.h),
-                                                  const SizedBox.shrink(),
-                                                  const SizedBox.shrink()
-                                                ]),
-                                                TableRow(children: [
-                                                  Text("Email:",
-                                                      style: detailTextStyle),
-                                                  const SizedBox.shrink(),
-                                                  Text(user?.userName ?? "",
-                                                      style: detailTextStyle,
-                                                      softWrap: false,
-                                                      overflow:
-                                                          TextOverflow.ellipsis)
-                                                ]),
-                                                TableRow(children: [
-                                                  SizedBox(height: 10.h),
-                                                  const SizedBox.shrink(),
-                                                  const SizedBox.shrink()
-                                                ]),
-                                                TableRow(children: [
-                                                  Text(
-                                                      user?.roleId == 3
-                                                          ? "Supervisor:"
-                                                          : "Children: ",
-                                                      style: detailTextStyle),
-                                                  const SizedBox.shrink(),
-                                                  Text("bus 01",
-                                                      style: detailTextStyle,
-                                                      softWrap: false,
-                                                      overflow:
-                                                          TextOverflow.ellipsis)
-                                                ]),
-                                                TableRow(children: [
-                                                  SizedBox(height: 10.h),
-                                                  const SizedBox.shrink(),
-                                                ]),
-                                                TableRow(children: [
-                                                  Text("User name:",
-                                                      style: detailTextStyle),
-                                                  const SizedBox.shrink(),
-                                                  Text(user?.userName ?? " ",
-                                                      style: detailTextStyle,
-                                                      softWrap: false,
-                                                      overflow:
-                                                          TextOverflow.ellipsis)
-                                                ])
-                                              ]))
+                                          child: Table(columnWidths: {
+                                            0: const FlexColumnWidth(),
+                                            1: FixedColumnWidth(26.w),
+                                            2: const FlexColumnWidth(2)
+                                          }, children: [
+                                            TableRow(children: [
+                                              Text("SĐT:",
+                                                  style: detailTextStyle),
+                                              const SizedBox.shrink(),
+                                              Text(user?.phone.toString() ?? "",
+                                                  style: detailTextStyle,
+                                                  softWrap: false,
+                                                  overflow:
+                                                      TextOverflow.ellipsis)
+                                            ]),
+                                            TableRow(children: [
+                                              SizedBox(height: 10.h),
+                                              const SizedBox.shrink(),
+                                              const SizedBox.shrink()
+                                            ]),
+                                            TableRow(children: [
+                                              Text("Email:",
+                                                  style: detailTextStyle),
+                                              const SizedBox.shrink(),
+                                              Text(user?.userName ?? "",
+                                                  style: detailTextStyle,
+                                                  softWrap: false,
+                                                  overflow:
+                                                      TextOverflow.ellipsis)
+                                            ]),
+                                            TableRow(children: [
+                                              SizedBox(height: 10.h),
+                                              const SizedBox.shrink(),
+                                              const SizedBox.shrink(),
+                                            ]),
+                                            TableRow(children: [
+                                              Text(
+                                                  user?.roleId == 3
+                                                      ? "Supervisor:"
+                                                      : "Children: ",
+                                                  style: detailTextStyle),
+                                              const SizedBox.shrink(),
+                                              Text("bus 01",
+                                                  style: detailTextStyle,
+                                                  softWrap: false,
+                                                  overflow:
+                                                      TextOverflow.ellipsis)
+                                            ]),
+                                            TableRow(children: [
+                                              SizedBox(height: 10.h),
+                                              const SizedBox.shrink(),
+                                              const SizedBox.shrink(),
+                                            ]),
+                                            TableRow(children: [
+                                              Text("User name:",
+                                                  style: detailTextStyle),
+                                              const SizedBox.shrink(),
+                                              Text(user?.userName ?? " ",
+                                                  style: detailTextStyle,
+                                                  softWrap: false,
+                                                  overflow:
+                                                      TextOverflow.ellipsis)
+                                            ])
+                                          ]))
                                     ])))),
 
                     ///Image Avatar
@@ -158,13 +153,19 @@ class InfoAccount extends StatelessWidget {
                             ]),
                         child: Container(
                             padding: const EdgeInsets.all(4.0),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.white,
                                 image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: AssetImage(
-                                        'assets/image_avt/avt.jpg')))))
+                                    image: user?.roleId == 1
+                                        ? AssetImage(
+                                            'assets/image_avt/avt_parent.jpg')
+                                        : user?.roleId == 3
+                                            ? AssetImage(
+                                                'assets/image_avt/avt.jpg')
+                                            : AssetImage(
+                                                'assets/image_avt/avt_parent.jpg')))))
                   ]),
                   SizedBox(height: 50.h),
                   TextButton.icon(
