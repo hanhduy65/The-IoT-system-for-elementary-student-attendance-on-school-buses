@@ -44,7 +44,7 @@ class _HomeTeacherState extends MomentumState<HomeTeacher> {
           }
           List<Widget> _widgetOptions = <Widget>[
             MainScreenTeacher(),
-            ViewStudentData(
+            TakeAttendanceScreen(
                 user: widget.user, busId: busController.model.busId),
             RegisterStudent(
                 user: widget.user, busId: busController.model.busId),

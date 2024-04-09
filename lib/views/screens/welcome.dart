@@ -1,3 +1,4 @@
+import 'package:busmate/views/screens/choose_role_remake.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -55,13 +56,20 @@ class WelcomeScreen extends StatelessWidget {
                               SizedBox(
                                 width: 1.sw,
                                 child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChooseRoleRemake(),
+                                          ));
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10.0),
                                       ),
-                                      backgroundColor: Color(0xFF3934E1),
+                                      backgroundColor: Color(0xFF36A945),
                                       elevation: 6,
                                     ),
                                     child: const Padding(

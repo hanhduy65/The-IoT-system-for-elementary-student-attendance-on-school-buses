@@ -11,17 +11,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/user_model.dart';
 
-class ViewStudentData extends StatefulWidget {
+class TakeAttendanceScreen extends StatefulWidget {
   final User? user;
   final int? busId;
 
-  const ViewStudentData({super.key, this.user, this.busId});
+  const TakeAttendanceScreen({super.key, this.user, this.busId});
 
   @override
-  State<ViewStudentData> createState() => _ViewStudentDataState();
+  State<TakeAttendanceScreen> createState() => _TakeAttendanceScreenState();
 }
 
-class _ViewStudentDataState extends MomentumState<ViewStudentData> {
+class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
   bool isStart = false;
   int _elapsedSeconds = 0;
   int takeAttended =
