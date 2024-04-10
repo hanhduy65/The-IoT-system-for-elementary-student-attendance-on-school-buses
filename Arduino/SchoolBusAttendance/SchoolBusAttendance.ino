@@ -37,6 +37,7 @@ WiFiClientSecure sslClient;                                     // Sử dụng t
 HTTPClient http1;
 HTTPClient http2;
 HTTPClient http3;
+HTTPClient http4;
 
 String value_key_13MHz = "";   // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 13MHz
 String value_key_125kHz = "";  // Chuỗi để lưu trữ giá trị từ khóa của mô-đun 125kHz
@@ -49,6 +50,8 @@ String deviceId = "1";  // for test only
 
 const int Analog_channel_pin = 35;
 float voltage_value; // Chuyển sang kiểu float để lưu giá trị điện áp.
+unsigned long lastMillis_battery = 0; // Biến lưu thời gian lần cuối gọi hàm
+
 
 /**
 2 s:C=US, O=Google Trust Services LLC, CN=GTS Root R1
@@ -227,6 +230,7 @@ void Buzzle() {
 //upload lên server
 void taskSendData2CloudFunction(void *pvParameters) {
   for (;;) {
+
     // Nếu giá trị value_key_13 được thay đồi thì mới update
     if (value_key_13MHz.length() > 0) {
       Serial.print("Leng 13.56MHz: ");
@@ -250,6 +254,15 @@ void taskSendData2CloudFunction(void *pvParameters) {
       isRegister ? registerIdStudentFunction(String(value_key_finger), true, deviceId, http3) : updateAttendance(String(value_key_finger), 1, http3);
       value_key_finger = 0;
     }
+
+    unsigned long currentMillis = millis();  // Lấy thời gian hiện tại
+    // Kiểm tra xem đã đủ 10 phút chưa
+    if (currentMillis - lastMillis_battery >= 10UL * 60 * 1000) {  // Kiểm tra sau mỗi 10 phút
+      lastMillis_battery = currentMillis;                          // Cập nhật thời gian lần cuối gọi hàm
+
+      updateAttendance(String(voltage_value), 0, http4);
+    }
+
     // Delay giữa các lần lặp của nhiệm vụ
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
