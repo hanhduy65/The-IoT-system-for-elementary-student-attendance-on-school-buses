@@ -20,16 +20,16 @@
 #define FIREBASE_FUNCTION_URL "https://us-central1-attendanceschoolbus.cloudfunctions.net/"  // base URL
 #define BAUDRATE 57600                                                                       // Tốc độ baud của UART
 #define SER_BUF_SIZE 1024                                                                    // Kích thước buffer cho dữ liệu đọc từ UART
-#define GREEN_PIN 33                                                                         // Chân kết nối với đèn LED
+#define GREEN_PIN 18                                                                         // Chân kết nối với đèn LED
 #define RED_PIN 32                                                                           // Chân kết nối với đèn LED
 #define BLUE_PIN 25                                                                          // Chân kết nối với đèn LED
 #define BUTTON 34                                                                            //chân kết nối với Button
-#define COMMON_ANODE                                                                         // bỏ cmt dòng này nếu dùng anode
+// #define COMMON_ANODE                                                                         // bỏ cmt dòng này nếu dùng anode
 #define BUZZLE 26
 
 HardwareSerial MySerial(2);                                     // Sử dụng HardwareSerial với UART 2
 Adafruit_PN532 nfc(SDA_PIN, SCL_PIN);                           // Sử dụng thư viện PN532 để tương tác với cảm biến NFC
-SoftwareSerial HZ1050(23, 3);                                    // Sử dụng SoftwareSerial để giao tiếp với một thiết bị khác (module có mã HZ1050)
+SoftwareSerial HZ1050(35, 3);                                    // Sử dụng SoftwareSerial để giao tiếp với một thiết bị khác (module có mã HZ1050)
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&MySerial);  // Sử dụng thư viện Adafruit_Fingerprint để tương tác với cảm biến vân tay
 Preferences preferences;                                        // Đối tượng Preferences để quản lý lưu trữ thông tin cài đặt trong bộ nhớ flash
 WiFiClientSecure sslClient;                                     // Sử dụng thư viện WiFiClientSecure để thiết lập kết nối an toàn với máy chủ
@@ -48,7 +48,7 @@ bool isRegister = false;   // đăng ký/đăng nhập
 
 String deviceId = "1";  // for test only
 
-const int Analog_channel_pin = 35;
+const int Analog_channel_pin = 27;
 float voltage_value; // Chuyển sang kiểu float để lưu giá trị điện áp.
 unsigned long lastMillis_battery = 0; // Biến lưu thời gian lần cuối gọi hàm
 
@@ -115,7 +115,7 @@ void setup(void) {
   // Authenticate fingerprint before continuing
   while (true) {
     value_key_finger = getFingerprintID();
-    if (value_key_finger == 1) {
+    if (value_key_finger == 61) {
       break; // Authentication successful
     } else {
       Serial.println("Authentication failed. Please try again.");  // In ra thông báo nếu xác thực ID không thành công
@@ -155,9 +155,10 @@ void battery() {
   //2,01: tổng 2 điện trở
   //0,46: sai số 
 
-  Serial.print("Voltage = ");
+  // Serial.print("Voltage = ");
   Serial.print(voltage_value);
-  Serial.println(" volts");
+  // Serial.println(" volts");
+  delay(200);
 }
 
 //Hàm khởi tạo cho module RFID 13.56MHz
@@ -257,8 +258,9 @@ void taskSendData2CloudFunction(void *pvParameters) {
 
     unsigned long currentMillis = millis();  // Lấy thời gian hiện tại
     // Kiểm tra xem đã đủ 10 phút chưa
-    if (currentMillis - lastMillis_battery >= 10UL * 60 * 1000) {  // Kiểm tra sau mỗi 10 phút
+    if (currentMillis - lastMillis_battery >= 10UL * 1000) {  // Kiểm tra sau mỗi 10 phút
       lastMillis_battery = currentMillis;                          // Cập nhật thời gian lần cuối gọi hàm
+      
 
       updateAttendance(String(voltage_value), 0, http4);
     }
