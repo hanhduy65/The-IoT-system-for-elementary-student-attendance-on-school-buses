@@ -17,63 +17,72 @@ class RegisterStudent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("Giá trị của busId trong màn RegisterStudent  $busId");
-    if (busId != 0) {
-      print("busid != 0");
-
-      return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return DefaultTabController(
+      length: 2,
+      child: Stack(
+        children: [
+          Container(
+            width: 1.sw,
+            height: 1.sh,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/ombre_blue.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user?.roleId == 3 ? "Hello, teacher" : "Hello, manager",
+                    style: TextStyle(fontSize: 16.sp, color: Colors.black87),
+                  ),
+                  Text(
+                    user?.fullName ?? "",
+                    style: TextStyle(
+                        fontSize: 20.sp,
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+              actions: [
+                Padding(
+                  padding: EdgeInsets.only(right: 10.0),
+                  child: CircleAvatar(
+                    radius: 30.0,
+                    backgroundImage: AssetImage("assets/image_avt/avt.jpg"),
+                    backgroundColor: Colors.transparent,
+                  ),
+                ),
+              ],
+              bottom: TabBar(
+                indicatorColor: Theme.of(context).colorScheme.secondary,
+                labelColor: Theme.of(context).colorScheme.secondary,
+                tabs: [
+                  Tab(text: "Register RFID/NFC"),
+                  Tab(text: "FINGERPRINT"),
+                ],
+              ),
+              automaticallyImplyLeading: false,
+            ),
+            body: TabBarView(
               children: [
-                Text(
-                  "Hello, teacher",
-                  style: TextStyle(fontSize: 16.sp, color: Colors.black87),
+                RegisterStudentByRFID(
+                  busId: busId,
+                  user: user,
                 ),
-                Text(
-                  "Luu Minh Huong",
-                  style: TextStyle(
-                      fontSize: 20.sp,
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold),
-                )
+                RegisterStudentByFingerprint(busId: busId, user: user)
               ],
             ),
-            actions: [
-              Padding(
-                padding: EdgeInsets.only(right: 10.0),
-                child: CircleAvatar(
-                  radius: 30.0,
-                  backgroundImage: AssetImage("assets/image_avt/avt.jpg"),
-                  backgroundColor: Colors.transparent,
-                ),
-              ),
-            ],
-            bottom: TabBar(
-              indicatorColor: Theme.of(context).colorScheme.secondary,
-              labelColor: Theme.of(context).colorScheme.secondary,
-              tabs: [
-                Tab(text: "Register RFID/NFC"),
-                Tab(text: "FINGERPRINT"),
-              ],
-            ),
-            automaticallyImplyLeading: false,
-          ),
-          body: TabBarView(
-            children: [
-              RegisterStudentByRFID(
-                busId: busId,
-                user: user,
-              ),
-              RegisterStudentByFingerprint(busId: busId, user: user)
-            ],
-          ),
-        ),
-      );
-    } else {
-      return const Center(child: Text("Không có gì hết"));
-    }
+          )
+        ],
+      ),
+    );
   }
 }

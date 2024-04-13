@@ -49,13 +49,6 @@ class _RegisterStudentByRFIDState extends MomentumState<RegisterStudentByRFID> {
                           child: Text(
                               "Danh sách học sinh cần đăng kí thẻ RFID trống"))
                       : Container(
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage(
-                                    "assets/images/background_register.png"),
-                                fit: BoxFit.fill,
-                                opacity: 0.5),
-                          ),
                           height: 1.sh,
                           child: ListView.builder(
                               physics: const AlwaysScrollableScrollPhysics(),
@@ -66,7 +59,9 @@ class _RegisterStudentByRFIDState extends MomentumState<RegisterStudentByRFID> {
                                         EdgeInsets.symmetric(horizontal: 10.w),
                                     child: InkWell(
                                       child: Card(
-                                        color: Color(0xFF81C75F).withAlpha(180),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: CardStudentRegister(
@@ -106,7 +101,7 @@ class _RegisterStudentByRFIDState extends MomentumState<RegisterStudentByRFID> {
                                                             fontSize:
                                                                 20.sp, // In đậm
                                                             color: Color(
-                                                                0xFF58952D), // Màu khác
+                                                                0xFF58952D),
                                                           ),
                                                         ),
                                                       ],
@@ -194,7 +189,7 @@ class _RegisterStudentByRFIDState extends MomentumState<RegisterStudentByRFID> {
     // TODO: implement initMomentumState
     super.initMomentumState();
     final loginController = Momentum.controller<LoginController>(context);
-    loginController.listen<AuthEvent>(
+    loginController.listen<RegisterEvent>(
       state: this,
       invoke: (event) {
         switch (event.action) {

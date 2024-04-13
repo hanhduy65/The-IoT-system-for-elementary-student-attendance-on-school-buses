@@ -23,7 +23,7 @@ class WelcomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Text(
+                    const Text(
                       "BusMate",
                       style: TextStyle(
                           fontSize: 40,
@@ -32,7 +32,7 @@ class WelcomeScreen extends StatelessWidget {
                           shadows: [
                             Shadow(
                               offset: Offset(1.0, 1.0),
-                              blurRadius: 7.0,
+                              blurRadius: 5.0,
                               color: Colors.black,
                             ),
                           ]),
@@ -69,7 +69,9 @@ class WelcomeScreen extends StatelessWidget {
                                         borderRadius:
                                             BorderRadius.circular(10.0),
                                       ),
-                                      backgroundColor: Color(0xFF36A945),
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       elevation: 6,
                                     ),
                                     child: const Padding(
@@ -91,7 +93,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
             )),
         Positioned(
-          top: 20,
+          top: 1.sh * 1 / 9 - 45.h,
           right: 20,
           child: Image.asset("assets/images/logo_fpt_uni.png", height: 45.h),
         ),

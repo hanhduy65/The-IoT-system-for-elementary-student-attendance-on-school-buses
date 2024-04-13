@@ -59,10 +59,8 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                     Container(
                       decoration: const BoxDecoration(
                         image: DecorationImage(
-                            image: AssetImage(
-                                "assets/images/background_check1.png"),
-                            fit: BoxFit.fill,
-                            opacity: 0.8),
+                            image: AssetImage("assets/images/ombre_blue.jpg"),
+                            fit: BoxFit.fill),
                       ),
                       height: 1.sh,
                     ),
@@ -71,6 +69,7 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                         appBar: PreferredSize(
                           preferredSize: Size.fromHeight(60.0),
                           child: AppBar(
+                            backgroundColor: Colors.transparent,
                             automaticallyImplyLeading: false,
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +80,7 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                       fontSize: 16.sp, color: Colors.black87),
                                 ),
                                 Text(
-                                  "Luu Minh Huong",
+                                  widget.user?.fullName ?? "",
                                   style: TextStyle(
                                       fontSize: 20.sp,
                                       color: Theme.of(context).primaryColor,
@@ -129,10 +128,11 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                                               .studentList[
                                                                   index]
                                                               .isOnBus!
-                                                          ? Color(0xFF58952D)
-                                                              .withAlpha(180)
-                                                          : Color(0xFFECAB33)
-                                                              .withAlpha(180),
+                                                          ? Theme.of(context)
+                                                              .colorScheme
+                                                              .secondary
+                                                          : Theme.of(context)
+                                                              .primaryColor,
                                                       child: ListTile(
                                                         title: Text(
                                                           listStudents
@@ -257,8 +257,8 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                   }
                                 },
                                 child: Card(
-                                  color: Color(0xFFECAB33),
-                                  elevation: 0,
+                                  color: Theme.of(context).primaryColor,
+                                  // elevation: 0,
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 16.0, right: 16, top: 5),

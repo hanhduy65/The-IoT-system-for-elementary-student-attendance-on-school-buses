@@ -35,21 +35,6 @@ class AuthServices extends MomentumService {
   Future<AuthRegisterResponse> register(RegisterModel requestModel) async {
     String url = "$serverURL/registerAccount";
     print("service Register" + requestModel.toJson().toString());
-    // try {
-    //   final response = await httpService.post(url, body: requestModel.toJson());
-    //   AuthRegisterResponse ss = AuthRegisterResponseController().init();
-    //   final parsedResponse = ss.fromJson(response);
-    //   print("Register response: $response");
-    //   print("AuthResponse: ${parsedResponse.authResponseMessage}");
-    //   return parsedResponse;
-    // } on Exception catch (e) {
-    //   print("Register error: $e");
-    //   return AuthRegisterResponse(
-    //     AuthRegisterResponseController(),
-    //     isAuthSuccessful: false,
-    //     authResponseMessage: e.toString(),
-    //   );
-    // }
     final response = await httpService.post(url, body: requestModel.toJson());
     AuthRegisterResponse ss = AuthRegisterResponseController().init();
     final parsedResponse = ss.fromJson(response);
@@ -103,19 +88,19 @@ class AuthServices extends MomentumService {
     }
   }
 
-  Future<Location> getGPSByParentId(String parentId) async {
+  Future<LocationModel> getGPSByParentId(String parentId) async {
     String url = "$serverURL/getGPSByParentId";
     try {
       final response = await httpService.post(url, body: {
         "parentId": parentId,
       });
-      Location ss = const Location(lat: "0", long: "0");
+      LocationModel ss = const LocationModel(lat: "0", long: "0");
       final parsedResponse = ss.fromJson(response);
       print("getGPS response: $response");
       return parsedResponse;
     } on Exception catch (e) {
       print("getGPS error: $e");
-      return const Location(lat: "0", long: "0");
+      return const LocationModel(lat: "0", long: "0");
     }
   }
 
@@ -134,6 +119,29 @@ class AuthServices extends MomentumService {
       return parsedResponse;
     } on Exception catch (e) {
       print("sendRequestRegisterStudent error: $e");
+      return AuthRegisterResponse(
+        AuthRegisterResponseController(),
+        isAuthSuccessful: false,
+        authResponseMessage: e.toString(),
+      );
+    }
+  }
+
+  Future<AuthRegisterResponse> sendRegisterBusStop(
+      String studentId, String lat, String long) async {
+    String url = "$serverURL/registerBusStop";
+    print("service sendRegisterBusStop" + studentId + lat + long);
+    try {
+      final response = await httpService.post(url,
+          body: {"studentId": studentId, "latitude": lat, "longitude": long});
+      AuthRegisterResponse ss = AuthRegisterResponseController().init();
+      final parsedResponse = ss.fromJson(response);
+      print("sendRegisterBusStop response: $response");
+      print(
+          "AuthResponse of sendRegisterBusStop: ${parsedResponse.authResponseMessage}");
+      return parsedResponse;
+    } on Exception catch (e) {
+      print("sendRegisterBusStop error: $e");
       return AuthRegisterResponse(
         AuthRegisterResponseController(),
         isAuthSuccessful: false,

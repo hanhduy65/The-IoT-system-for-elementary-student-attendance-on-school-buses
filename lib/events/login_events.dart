@@ -19,7 +19,13 @@ class AuthEvent {
   AuthEvent({this.action, this.message, this.user});
 }
 
+class RegisterEvent {
+  final bool? action;
+  final String? message;
+  RegisterEvent({this.action, this.message});
+}
+
 class LocationEvent {
-  final Location location;
+  final LocationModel location;
   LocationEvent({required this.location});
 }

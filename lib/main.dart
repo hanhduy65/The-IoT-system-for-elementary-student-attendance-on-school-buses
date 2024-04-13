@@ -23,7 +23,6 @@ import 'package:busmate/views/screens/login_screen.dart';
 import 'package:busmate/views/screens/manager_screen/home_manager.dart';
 import 'package:busmate/views/screens/parent_screen/home_parent.dart';
 import 'package:busmate/views/screens/teacher_screen/home_teacher.dart';
-import 'package:busmate/views/screens/teacher_screen/infor_teacher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/list_history_attendance_controller.dart';
@@ -170,12 +169,11 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-        // home: isLogin!
-        //     ? NavigatorHomeScreen(int.tryParse(roleId!))
-        //     : FCMTokenLoaded
-        //         ? ChoosingRole(FCMToken: FCMToken)
-        //         : LoadingScreen()
-        home: WelcomeScreen());
+        home: isLogin!
+            ? NavigatorHomeScreen(int.tryParse(roleId!))
+            : FCMTokenLoaded
+                ? WelcomeScreen()
+                : LoadingScreen());
   }
 }
 

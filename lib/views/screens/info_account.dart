@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/user_model.dart';
-import 'choose_role.dart';
 
 class InfoAccount extends StatelessWidget {
   final User? user;
@@ -15,6 +13,7 @@ class InfoAccount extends StatelessWidget {
     final TextStyle detailTextStyle =
         TextStyle(fontSize: 14.sp, color: const Color(0xff51697E));
     return Scaffold(
+      appBar: AppBar(),
       body: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Stack(children: <Widget>[
@@ -28,7 +27,7 @@ class InfoAccount extends StatelessWidget {
                         ),
                         child: Card(
                             margin: EdgeInsets.zero,
-                            color: Color(0xFFFAD364),
+                            color: Color(0xFFF3AE4C),
                             child: Padding(
                                 padding: EdgeInsetsDirectional.symmetric(
                                     vertical: 15.h),
@@ -169,16 +168,10 @@ class InfoAccount extends StatelessWidget {
                   ]),
                   SizedBox(height: 50.h),
                   TextButton.icon(
-                      onPressed: () async {
-                        SharedPreferences sp =
-                            await SharedPreferences.getInstance();
-                        sp.clear();
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (_) => ChoosingRole()));
-                      },
-                      icon: Icon(Icons.power_settings_new,
+                      onPressed: () {},
+                      icon: Icon(Icons.edit,
                           color: Theme.of(context).primaryColor),
-                      label: Text("log out".toUpperCase(),
+                      label: Text("Edit profile".toUpperCase(),
                           style:
                               TextStyle(color: Theme.of(context).primaryColor)))
                 ]))

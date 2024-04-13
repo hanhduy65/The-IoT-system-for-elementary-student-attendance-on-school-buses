@@ -1,4 +1,5 @@
 import 'package:busmate/views/screens/info_account.dart';
+import 'package:busmate/views/screens/parent_screen/bluetooth_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:momentum/momentum.dart';
@@ -7,13 +8,13 @@ import 'package:busmate/controllers/student_controller.dart';
 import 'package:busmate/models/login_model.dart';
 import 'package:busmate/utils/global.dart';
 import 'package:busmate/views/screens/parent_screen/attendance_history.dart';
-import 'package:busmate/views/screens/teacher_screen/student_data.dart';
+import 'package:busmate/views/screens/teacher_screen/take_attendance.dart';
 import 'package:busmate/views/screens/parent_screen/view_map_of_parent.dart';
 import 'package:busmate/views/screens/teacher_screen/view_map_of_teacher.dart';
 
 import '../../../controllers/login_controller.dart';
 import '../../../models/user_model.dart';
-import '../teacher_screen/infor_teacher.dart';
+import '../account_screen.dart';
 import 'main_screen_parent.dart';
 
 class HomeParent extends StatefulWidget {
@@ -51,14 +52,6 @@ class _HomeParentState extends MomentumState<HomeParent> {
               .doSendFCMToken(FCMToken!, widget.user.userId!),
           print("gửi FCM theo diện secureStorage")
         });
-    if (widget.token != null) {
-      print("userId${widget.user.userId}");
-      Momentum.controller<LoginController>(context)
-          .doSendFCMToken(widget.token!, widget.user.userId!);
-      print("gửi FCM theo diện token navigator");
-    } else {
-      print("k có FCM");
-    }
   }
 
   @override
@@ -76,15 +69,18 @@ class _HomeParentState extends MomentumState<HomeParent> {
           }
 
           List<Widget> _widgetOptions = <Widget>[
-            MainScreenParent(),
+            MainScreenParent(user: widget.user),
             ViewMapOfParent(
               user: widget.user,
             ),
             AttendanceHistory(
                 user: widget.user, studentId: stuController.model.studentId),
-            InfoAccount(
-              user: widget.user,
-            ),
+            // InfoAccount(
+            //   user: widget.user,
+            // ),
+            BluetoothScan(),
+            AccountScreen(
+                user: widget.user, stuId: stuController.model.studentId)
           ];
           return Scaffold(
             body: Center(
@@ -108,6 +104,10 @@ class _HomeParentState extends MomentumState<HomeParent> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.border_color),
                   label: 'Attendance',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.bluetooth),
+                  label: 'Tag',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),

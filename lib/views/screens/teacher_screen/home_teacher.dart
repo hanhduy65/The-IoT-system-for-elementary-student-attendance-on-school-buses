@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:momentum/momentum.dart';
 import 'package:busmate/controllers/bus_controller.dart';
-import 'package:busmate/models/login_model.dart';
-import 'package:busmate/views/screens/teacher_screen/infor_teacher.dart';
 import 'package:busmate/views/screens/teacher_screen/main_screen_teacher.dart';
 import 'package:busmate/views/screens/teacher_screen/register_student.dart';
-import 'package:busmate/views/screens/teacher_screen/student_data.dart';
-import 'package:busmate/views/screens/parent_screen/view_map_of_parent.dart';
-import 'package:busmate/views/screens/teacher_screen/test_map.dart';
+import 'package:busmate/views/screens/teacher_screen/take_attendance.dart';
 import 'package:busmate/views/screens/teacher_screen/view_map_of_teacher.dart';
 
 import '../../../models/user_model.dart';
+import '../account_screen.dart';
 import '../info_account.dart';
 
 class HomeTeacher extends StatefulWidget {
@@ -43,7 +39,8 @@ class _HomeTeacherState extends MomentumState<HomeTeacher> {
             busController.model.update(isCalled: true);
           }
           List<Widget> _widgetOptions = <Widget>[
-            MainScreenTeacher(),
+            MainScreenTeacher(
+                user: widget.user, busId: busController.model.busId),
             TakeAttendanceScreen(
                 user: widget.user, busId: busController.model.busId),
             RegisterStudent(
@@ -53,8 +50,8 @@ class _HomeTeacherState extends MomentumState<HomeTeacher> {
               busId: busController.model.busId ?? 0,
             ),
             // DemoMap(),
-            InfoAccount(
-              user: widget.user!,
+            AccountScreen(
+              user: widget.user,
             )
           ];
           return Scaffold(

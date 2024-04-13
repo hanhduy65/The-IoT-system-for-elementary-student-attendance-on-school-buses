@@ -12,20 +12,6 @@ class StudentListController extends MomentumController<StudentListModel> {
   }
 
   Future<void> getStudentList() async {
-    // bool hasInternet = await InternetConnectionChecker().hasConnection;
-    // if (hasInternet) {
-    //   try {
-    //     final studentService = service<StudentServices>();
-    //     final fetchedStudentList = await studentService.getAllStudent();
-    //     model.update(
-    //       studentList: fetchedStudentList,
-    //     );
-    //   } catch (e) {
-    //     print("search customer list error: $e");
-    //   }
-    // } else {
-    //   sendEvent(AuthEvent(action: false, message: "No internet connection"));
-    // }
     try {
       final studentService = service<StudentServices>();
       final fetchedStudentList = await studentService.getAllStudent();
@@ -33,7 +19,7 @@ class StudentListController extends MomentumController<StudentListModel> {
         studentList: fetchedStudentList,
       );
     } catch (e) {
-      print("search customer list error: $e");
+      print("search Student list error: $e");
     }
   }
 }

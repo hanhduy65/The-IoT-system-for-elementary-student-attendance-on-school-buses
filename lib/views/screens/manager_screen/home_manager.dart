@@ -1,10 +1,11 @@
+import 'package:busmate/views/screens/account_screen.dart';
 import 'package:busmate/views/screens/manager_screen/main_screen_manager.dart';
-import 'package:flutter/material.dart';
 import 'package:busmate/views/screens/register_screen.dart';
+import 'package:busmate/views/screens/teacher_screen/register_student.dart';
+import 'package:flutter/material.dart';
 
 import '../../../models/user_model.dart';
 import '../info_account.dart';
-import '../parent_screen/main_screen_parent.dart';
 import '../parent_screen/view_map_of_parent.dart';
 
 class HomeManager extends StatefulWidget {
@@ -27,10 +28,14 @@ class _HomeManagerState extends State<HomeManager> {
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
       MainScreenManager(),
-      ViewMapOfParent(
-        user: widget.user!,
+      RegisterStudent(
+        busId: 0,
+        user: widget.user,
       ),
-      InfoAccount(
+      RegisterScreen(
+        user: widget.user,
+      ),
+      AccountScreen(
         user: widget.user,
       ),
     ];
@@ -51,8 +56,12 @@ class _HomeManagerState extends State<HomeManager> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.location_on),
-            label: 'Tracking',
+            icon: Icon(Icons.add_box),
+            label: 'Register',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_add),
+            label: 'SignUp',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

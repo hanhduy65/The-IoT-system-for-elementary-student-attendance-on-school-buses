@@ -10,7 +10,7 @@ import '../services/auth_service.dart';
 class LoginController extends MomentumController<LoginModel> {
   @override
   LoginModel init() {
-    return LoginModel(this, username: "", password: "", roleId: 0);
+    return LoginModel(this, username: "", password: "", roleId: 1);
   }
 
   void recordUsername(String value) {
@@ -92,7 +92,7 @@ class LoginController extends MomentumController<LoginModel> {
     final authService = service<AuthServices>();
     final profile =
         await authService.sendRequestRegisterStudent(deviceId, studentId);
-    sendEvent(AuthEvent(
+    sendEvent(RegisterEvent(
         action: profile.isAuthSuccessful,
         message: profile.authResponseMessage));
   }
@@ -103,22 +103,15 @@ class LoginController extends MomentumController<LoginModel> {
     final profile = await authService.getGPSByParentId(parentId);
     sendEvent(LocationEvent(location: profile));
   }
-// @override
-// Future<void> bootstrapAsync() async {
-//   // TODO: implement bootstrapAsync
-//   // await Future.delayed(const Duration(seconds: 2));
-//   model.update(autoLoginIndicator: true);
-//   String? value = await secureStorage.read(key: "accessToken");
-//   if (value != null) {
-//     print(value);
-//
-//     await Future.delayed(const Duration(seconds: 1));
-//     sendEvent(AuthEvent(action: true, message: "Auto login"));
-//     // model.update(autoLoginIndicator: false);
-//   } else {
-//     model.update(autoLoginIndicator: false);
-//   }
-// }
+
+  Future<void> doSendRegisterBusStop(
+      String studentId, String lat, String long) async {
+    final authService = service<AuthServices>();
+    final profile = await authService.sendRegisterBusStop(studentId, lat, long);
+    sendEvent(RegisterEvent(
+        action: profile.isAuthSuccessful,
+        message: profile.authResponseMessage));
+  }
 }
 
 class AuthResponseController extends MomentumController<AuthResponse> {

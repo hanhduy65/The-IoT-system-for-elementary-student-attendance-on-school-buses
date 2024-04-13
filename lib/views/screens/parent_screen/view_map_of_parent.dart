@@ -5,9 +5,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:momentum/momentum.dart';
 import 'package:busmate/controllers/login_controller.dart';
 import 'package:busmate/events/login_events.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import '../../../models/user_model.dart';
+import '../../widgets/card_student_register.dart';
 
 class ViewMapOfParent extends StatefulWidget {
   final String? token;
@@ -23,7 +25,7 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
   String lat = "0", long = "0";
   String locationMess = "Current Location of the user";
   Timer? timer;
-
+  double startLatitude = 0, startLongitude = 0;
   late GoogleMapController mapController;
 
   void _onMapCreated(GoogleMapController controller) {
@@ -35,12 +37,36 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
   bool isInitGGMap = false;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initData();
+  }
+
+  void initData() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    startLatitude = double.parse(sp.getString("key_latBusStop") ?? "0");
+    startLongitude = double.parse(sp.getString("key_longBusStop") ?? "0");
+  }
+
+  double calculateDistance(double endLatitude, double endLongitude) {
+    double distanceInMeters = Geolocator.distanceBetween(
+      startLatitude,
+      startLongitude,
+      endLatitude,
+      endLongitude,
+    );
+    return startLatitude == 0 ? -1 : distanceInMeters;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      /*
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0),
         child: AppBar(
-          backgroundColor: Color(0xFFECAB33),
+          backgroundColor: Colors.transparent,
           automaticallyImplyLeading: false,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,6 +96,8 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
           ],
         ),
       ),
+
+       */
       body: Visibility(
         visible: isInitGGMap,
         child: Container(
@@ -239,7 +267,34 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
                     ],
                   ),
                 ),
-              )
+              ),
+              Positioned(
+                  top: 20,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Card(
+                        color: Color(0xFFFAE4BF),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            title: Text("Lưu Minh Hương"),
+                            leading: Padding(
+                              padding: EdgeInsets.only(right: 10.0),
+                              child: CircleAvatar(
+                                radius: 30.0,
+                                backgroundImage:
+                                    AssetImage("assets/image_avt/images1.jpg"),
+                                backgroundColor: Colors.transparent,
+                              ),
+                            ),
+                            subtitle: Text(calculateDistance(
+                                    double.parse(lat), double.parse(long))
+                                .toString()),
+                          ),
+                        )),
+                  ))
             ],
           ),
         ),
@@ -253,8 +308,10 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
     final loginController = Momentum.controller<LoginController>(context);
     Momentum.controller<LoginController>(context).doGetGPS(widget.user.userId!);
     timer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      Momentum.controller<LoginController>(context)
-          .doGetGPS(widget.user.userId!);
+      if (mounted) {
+        Momentum.controller<LoginController>(context)
+            .doGetGPS(widget.user.userId!);
+      }
     });
     loginController.listen<LocationEvent>(
       state: this,
@@ -263,15 +320,13 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
           if (event.location.lat! != "0" && event.location.long! != "0") {
             lat = event.location.lat!;
             long = event.location.long!;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              setState(() {
-                locationMess = 'Latitude: $lat, Longitude:$long';
-                _position = CameraPosition(
-                    target: LatLng(double.parse(lat), double.parse(long)),
-                    zoom: 17);
-                isInitGGMap = true;
-                print("isInitGGMap: " + isInitGGMap.toString());
-              });
+            setState(() {
+              locationMess = 'Latitude: $lat, Longitude:$long';
+              _position = CameraPosition(
+                  target: LatLng(double.parse(lat), double.parse(long)),
+                  zoom: 17);
+              isInitGGMap = true;
+              print("isInitGGMap: " + isInitGGMap.toString());
             });
           }
         }

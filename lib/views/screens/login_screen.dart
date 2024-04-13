@@ -11,7 +11,7 @@ import 'package:busmate/views/screens/manager_screen/home_manager.dart';
 import 'package:busmate/views/screens/parent_screen/home_parent.dart';
 import 'package:busmate/views/screens/teacher_screen/home_teacher.dart';
 import 'package:busmate/views/screens/register_screen.dart';
-import 'package:busmate/views/screens/teacher_screen/student_data.dart';
+import 'package:busmate/views/screens/teacher_screen/take_attendance.dart';
 import 'package:busmate/views/screens/parent_screen/view_map_of_parent.dart';
 
 import '../../controllers/login_controller.dart';
@@ -79,8 +79,7 @@ class _LoginScreenState extends MomentumState<LoginScreen> {
               elevation: 0,
               flexibleSpace: Container(
                 decoration: BoxDecoration(
-                  color: Color(
-                      0xFF87CCED), // Đổi màu của FlexibleSpaceBar thành đỏ
+                  color: Color(0xFF87CCED),
                 ),
               ),
             ),
@@ -284,9 +283,7 @@ class _LoginScreenState extends MomentumState<LoginScreen> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    RegisterScreen(
-                                                      token: widget.token,
-                                                    )),
+                                                    RegisterScreen()),
                                           );
                                         },
                                         child: Padding(

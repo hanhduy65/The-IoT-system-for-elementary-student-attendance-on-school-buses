@@ -1,10 +1,10 @@
-class Location {
-  final String? lat, long;
+class LocationModel {
+  final String? name, lat, long;
 
-  const Location({this.lat, this.long});
+  const LocationModel({this.name, this.lat, this.long});
 
-  Location fromJson(Map<String, dynamic>? json) {
-    return Location(
+  LocationModel fromJson(Map<String, dynamic>? json) {
+    return LocationModel(
       lat: json?["latitude"],
       long: json?["longitude"],
     );

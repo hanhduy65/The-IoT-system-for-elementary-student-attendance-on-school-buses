@@ -49,12 +49,14 @@ dependencies:
   geolocator: ^10.1.0
   crypto: ^3.0.3
   flutter_recaptcha_v2_compat: ^1.0.2+2
-  webview_flutter: ^4.7.0
   timer_builder: ^2.0.0
   flutter_map: ^6.1.0
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5
   rename: ^3.0.2
+  flutter_blue: ^0.8.0
+  geocoding: ^3.0.0
+  uuid: ^4.4.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

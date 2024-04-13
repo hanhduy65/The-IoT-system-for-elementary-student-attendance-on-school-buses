@@ -73,102 +73,116 @@ class _ViewMapOfTeacherState extends MomentumState<ViewMapOfTeacher> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.0),
-          child: AppBar(
-            backgroundColor: Color(0xFFECAB33),
-            automaticallyImplyLeading: false,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Hello, teacher",
-                  style: TextStyle(fontSize: 16.sp, color: Colors.white70),
+    return Stack(
+      children: [
+        Container(
+            width: 1.sw,
+            height: 1.sh,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/ombre_blue.jpg'),
+                fit: BoxFit.cover,
+              ),
+            )),
+        Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(60.0),
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                automaticallyImplyLeading: false,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Hello, teacher",
+                      style: TextStyle(fontSize: 16.sp),
+                    ),
+                    Text(
+                      widget.user?.fullName ?? "",
+                      style: TextStyle(
+                          fontSize: 20.sp,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
                 ),
-                Text(
-                  "Luu Minh Huong",
-                  style: TextStyle(
-                      fontSize: 20.sp,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                )
-              ],
+                actions: [
+                  Padding(
+                    padding: EdgeInsets.only(right: 10.0),
+                    child: CircleAvatar(
+                      radius: 30.0,
+                      backgroundImage: AssetImage("assets/image_avt/avt.jpg"),
+                      backgroundColor: Colors.transparent,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            actions: [
-              Padding(
-                padding: EdgeInsets.only(right: 10.0),
-                child: CircleAvatar(
-                  radius: 30.0,
-                  backgroundImage: AssetImage("assets/image_avt/avt.jpg"),
-                  backgroundColor: Colors.transparent,
-                ),
-              ),
-            ],
-          ),
-        ),
-        body: Visibility(
-          visible: isInitGGMap,
-          child: Stack(
-            children: [
-              GoogleMap(
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                initialCameraPosition: _position,
-                onMapCreated: _onMapCreated,
-              ),
-              Positioned(
-                bottom: 0,
-                left: 10,
-                right: 10,
-                child: Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const ListTile(
-                          title: Column(
+            body: Visibility(
+              visible: isInitGGMap,
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    mapType: MapType.normal,
+                    myLocationEnabled: true,
+                    initialCameraPosition: _position,
+                    onMapCreated: _onMapCreated,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 10,
+                    right: 10,
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 0,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Bus id: 01"),
-                          Text("Plate No: 17B - 17026"),
-                        ],
-                      )),
-                      Container(
-                        height: 1, // Chiều cao của đường chia
-                        color: Colors.grey, // Màu của đường chia
-                      ),
-                      ListTile(
-                        leading: Image.asset(
-                          "assets/icons/icon_driver.png",
-                          width: 40,
-                          height: 40,
-                        ),
-                        title: Text(
-                          "Driver",
-                          style: TextStyle(
-                              color: Color(0xFFDC7D32),
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text("Ngo Van Long / 0986825596",
-                            style: TextStyle(fontSize: 14.sp)),
-                        trailing: InkWell(
-                          child: const Icon(
-                            Icons.call,
-                            color: Color(0xFFDC7D32),
+                          const ListTile(
+                              title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Bus id: 01"),
+                              Text("Plate No: 17B - 17026"),
+                            ],
+                          )),
+                          Container(
+                            height: 1, // Chiều cao của đường chia
+                            color: Colors.grey, // Màu của đường chia
                           ),
-                          onTap: () => _makePhoneCall("0986825596"),
-                        ),
+                          ListTile(
+                            leading: Image.asset(
+                              "assets/icons/icon_driver.png",
+                              width: 40,
+                              height: 40,
+                            ),
+                            title: Text(
+                              "Driver",
+                              style: TextStyle(
+                                  color: Color(0xFFDC7D32),
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text("Ngo Van Long / 0986825596",
+                                style: TextStyle(fontSize: 14.sp)),
+                            trailing: InkWell(
+                              child: const Icon(
+                                Icons.call,
+                                color: Color(0xFFDC7D32),
+                              ),
+                              onTap: () => _makePhoneCall("0986825596"),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-        ));
+                    ),
+                  )
+                ],
+              ),
+            )),
+      ],
+    );
   }
 
   @override
@@ -193,8 +207,11 @@ class _ViewMapOfTeacherState extends MomentumState<ViewMapOfTeacher> {
       _getCurrentLocation().then((value) {
         lat = '${value.latitude}';
         long = '${value.longitude}';
-        Momentum.controller<LoginController>(context)
-            .doSendGPS(widget.busId, lat, long);
+        if (mounted) {
+          Momentum.controller<LoginController>(context)
+              .doSendGPS(widget.busId, lat, long);
+        }
+
         setState(() {
           locationMess = 'Latitude: $lat, Longitude:$long';
           _position = CameraPosition(
