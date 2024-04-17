@@ -1,6 +1,6 @@
 import 'package:momentum/momentum.dart';
 
-import '../events/login_events.dart';
+import '../events/events.dart';
 import '../models/register_model.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
@@ -26,50 +26,34 @@ class RegisterController extends MomentumController<RegisterModel> {
 
   String? validateEmail(String? email) {
     if (email!.isEmpty) {
-      return "Vui lòng nhập địa chỉ email";
+      return "Please enter username";
     }
     if (!email.contains('@') ||
         !email.contains('.') ||
         email.split('@')[0].isEmpty ||
         email.split('@')[1].split('.')[0].isEmpty ||
         email.split('.')[1].isEmpty) {
-      return "Địa chỉ email sai cú pháp";
+      return "Username has incorrect syntax";
     }
     return null;
   }
-  // String? validatePhoneString(String? value) {
-  //   if (value == null || value == "") {
-  //     return "Số điện thoại người dùng không được để trống";
-  //   }
-  //   if (!isValidPhoneNumber(value)) {
-  //     return "Số điện thoại người dùng không đúng định dạng";
-  //   }
-  //   return null;
-  // }
-
-  // String? validateFullNameString(String? value) {
-  //   if (value == null || value == "") {
-  //     return "Tên đầy đủ không được để trống";
-  //   }
-  //   return null;
-  // }
 
   String? validatePasswordString(String? value) {
     if (value == null || value == "") {
-      return "Mật khẩu không được để trống";
+      return "Password cannot be blank";
     }
     return null;
   }
 
   String? checkConfirmPassWord(String? confirmPassword, String? password) {
     if (password!.isEmpty) {
-      return "Vui lòng nhập mật khẩu";
+      return "Please enter password";
     }
     if (confirmPassword!.isEmpty) {
-      return "Vui lòng nhập lại mật khẩu";
+      return "Please enter re-password";
     }
     if (password != confirmPassword) {
-      return "Mật khẩu không trùng";
+      return "Password does not match";
     }
     return null;
   }

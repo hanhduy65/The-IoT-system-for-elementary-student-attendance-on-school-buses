@@ -4,7 +4,7 @@ import 'package:momentum/momentum.dart';
 import 'package:busmate/controllers/student_register_fingerprint_controller.dart';
 
 import '../../../controllers/login_controller.dart';
-import '../../../events/login_events.dart';
+import '../../../events/events.dart';
 import '../../../models/student_register_fingerprint_model.dart';
 import '../../../models/user_model.dart';
 import '../../widgets/card_student_register.dart';

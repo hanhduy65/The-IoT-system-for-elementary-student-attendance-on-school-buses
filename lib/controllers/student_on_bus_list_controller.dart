@@ -1,4 +1,3 @@
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:momentum/momentum.dart';
 
 import '../models/student_on_bus_list_model.dart';

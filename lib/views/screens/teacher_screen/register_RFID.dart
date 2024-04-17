@@ -8,7 +8,7 @@ import 'package:busmate/models/student_model.dart';
 
 import '../../../controllers/login_controller.dart';
 import '../../../controllers/student_register_RFID_controller.dart';
-import '../../../events/login_events.dart';
+import '../../../events/events.dart';
 import '../../../models/student_register_RFID_model.dart';
 import '../../../models/user_model.dart';
 import '../../widgets/card_student_register.dart';

@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:momentum/momentum.dart';
 import 'package:busmate/controllers/login_controller.dart';
-import 'package:busmate/events/login_events.dart';
+import 'package:busmate/events/events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';

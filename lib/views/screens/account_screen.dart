@@ -1,4 +1,3 @@
-import 'package:busmate/views/screens/choose_role.dart';
 import 'package:busmate/views/screens/info_account.dart';
 import 'package:busmate/views/screens/parent_screen/choosing_location.dart';
 import 'package:flutter/material.dart';

@@ -10,7 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:momentum/momentum.dart';
 
 import '../../controllers/login_controller.dart';
-import '../../events/login_events.dart';
+import '../../events/events.dart';
 import '../../models/login_model.dart';
 import '../widgets/input_decoration.dart';
 import 'manager_screen/home_manager.dart';
@@ -542,7 +542,7 @@ Scaffold(
           width: 1.sw,
           height: 1.sh,
           child:
-              Image.asset("assets/images/ombre_blue_car.jpg", fit: BoxFit.fill),
+              Image.asset("assets/images/ombre_blue.jpg", fit: BoxFit.fill),
         ),
         Positioned(
             top: 1.sh * 0.3,

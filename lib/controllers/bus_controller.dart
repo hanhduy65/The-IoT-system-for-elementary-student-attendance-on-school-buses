@@ -1,6 +1,6 @@
 import 'package:momentum/momentum.dart';
 
-import '../events/login_events.dart';
+import '../events/events.dart';
 import '../models/bus_model.dart';
 import '../services/bus_service.dart';
 

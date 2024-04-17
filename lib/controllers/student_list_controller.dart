@@ -1,7 +1,6 @@
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:momentum/momentum.dart';
 
-import '../events/login_events.dart';
+import '../events/events.dart';
 import '../models/student_list_model.dart';
 import '../services/student_service.dart';
 

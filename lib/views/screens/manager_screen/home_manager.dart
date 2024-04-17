@@ -28,6 +28,9 @@ class _HomeManagerState extends State<HomeManager> {
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
       MainScreenManager(),
+      ViewMapOfParent(
+        user: widget.user!,
+      ),
       RegisterStudent(
         busId: 0,
         user: widget.user,
@@ -54,6 +57,10 @@ class _HomeManagerState extends State<HomeManager> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_filled),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_on),
+            label: 'Tracking',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_box),

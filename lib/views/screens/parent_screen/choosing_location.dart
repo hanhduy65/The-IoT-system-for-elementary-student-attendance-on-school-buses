@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../controllers/login_controller.dart';
-import '../../../events/login_events.dart';
+import '../../../events/events.dart';
 
 class PlaceAPIGoogleMapSearch extends StatefulWidget {
   final String? stuId;

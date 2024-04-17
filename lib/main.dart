@@ -18,8 +18,6 @@ import 'package:busmate/services/auth_service.dart';
 import 'package:busmate/services/bus_service.dart';
 import 'package:busmate/services/student_service.dart';
 import 'package:busmate/utils/global.dart';
-import 'package:busmate/views/screens/choose_role.dart';
-import 'package:busmate/views/screens/login_screen.dart';
 import 'package:busmate/views/screens/manager_screen/home_manager.dart';
 import 'package:busmate/views/screens/parent_screen/home_parent.dart';
 import 'package:busmate/views/screens/teacher_screen/home_teacher.dart';
@@ -88,12 +86,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // secureStorage.read(key: "key_username").then((value) =>
-    //     {username = value ?? "testdemo", print("username: " + username)});
-    // secureStorage.read(key: "key_roleId").then((value) =>
-    //     {roleId = value ?? "", print("roleId: ${roleId ?? " null"}")});
-    // secureStorage.read(key: "key_userId").then((value) =>
-    //     {userId = value ?? "", print("userId: ${userId ?? " null"}")});
     isLoginFun();
     setUpFCMToken();
     isAndroidPermissionGranted(flutterLocalNotificationPlugin);

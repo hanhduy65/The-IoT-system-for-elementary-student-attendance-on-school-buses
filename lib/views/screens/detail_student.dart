@@ -64,7 +64,7 @@ class _StudentDetailState extends MomentumState<StudentDetail> {
                                     ),
                                     child: Card(
                                         margin: EdgeInsets.zero,
-                                        color: Color(0xFFFAD364),
+                                        color: Color(0xFFF3AE4C),
                                         child: Padding(
                                             padding:
                                                 EdgeInsetsDirectional.symmetric(
@@ -75,8 +75,7 @@ class _StudentDetailState extends MomentumState<StudentDetail> {
                                                   SizedBox(
                                                       height: circleRadius / 2),
                                                   Text(
-                                                    (student.studentName ??
-                                                            "Luu Minh Huong")
+                                                    (student.studentName ?? " ")
                                                         .toUpperCase(),
                                                     style: TextStyle(
                                                         color: Theme.of(context)

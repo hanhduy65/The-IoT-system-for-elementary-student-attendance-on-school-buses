@@ -2,7 +2,7 @@ import 'package:momentum/momentum.dart';
 import 'package:busmate/utils/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../events/login_events.dart';
+import '../events/events.dart';
 import '../models/login_model.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
@@ -28,14 +28,14 @@ class LoginController extends MomentumController<LoginModel> {
 
   String? validateUsernameString(String? value) {
     if (value == null || value == "") {
-      return "Tên người dùng không được để trống";
+      return "Username cannot be blank";
     }
     return null;
   }
 
   String? validatePasswordString(String? value) {
     if (value == null || value == "") {
-      return "Mật khẩu không được để trống";
+      return "Password cannot be blank";
     }
     return null;
   }

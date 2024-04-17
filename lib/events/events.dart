@@ -1,16 +1,5 @@
-import 'package:busmate/models/login_model.dart';
-
 import '../models/location_model.dart';
 import '../models/user_model.dart';
-
-enum LoginEventActions {
-  none,
-  loginSuccess,
-  usernameDoesNotExists,
-  incorrectCredentials,
-  passwordTooShort,
-  unknownError,
-}
 
 class AuthEvent {
   final bool? action;

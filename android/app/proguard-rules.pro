@@ -1,0 +1,3 @@
+-keep class com.pauldemarco.flutter_blue.** { *; }
+-keep class com.pauldemarco.flutter_blue.Protos* { *; }
+-keepclassmembernames class com.pauldemarco.flutter_blue.* { *; }

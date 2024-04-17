@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:busmate/views/screens/choose_role_remake.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,12 +10,11 @@ import 'package:momentum/momentum.dart';
 
 import '../../controllers/login_controller.dart';
 import '../../controllers/register_controller.dart';
-import '../../events/login_events.dart';
+import '../../events/events.dart';
 import '../../models/login_model.dart';
 import '../../models/register_model.dart';
 import '../../models/user_model.dart';
 import '../widgets/input_decoration.dart';
-import 'choose_role.dart';
 
 class RegisterScreen extends StatefulWidget {
   final User? user;
@@ -329,7 +329,7 @@ class _RegisterScreenState extends MomentumState<RegisterScreen> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChoosingRole(),
+                  builder: (context) => ChooseRoleRemake(),
                 ));
             break;
           case false:
