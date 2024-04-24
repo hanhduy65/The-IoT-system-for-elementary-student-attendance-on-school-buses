@@ -1,13 +1,18 @@
 import 'dart:math';
 
+import 'package:busmate/controllers/register_smart_tag_response_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:momentum/momentum.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../events/events.dart';
 import '../../widgets/widgets.dart';
 
 class BluetoothScan extends StatelessWidget {
+  final String? stuId;
+  const BluetoothScan({Key? key, this.stuId}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,7 +23,9 @@ class BluetoothScan extends StatelessWidget {
           builder: (c, snapshot) {
             final state = snapshot.data;
             if (state == BluetoothState.on) {
-              return FindDevicesScreen();
+              return FindDevicesScreen(
+                stuId: stuId,
+              );
             }
             return BluetoothOffScreen(state: state!);
           }),
@@ -71,7 +78,14 @@ class BluetoothOffScreen extends StatelessWidget {
   }
 }
 
-class FindDevicesScreen extends StatelessWidget {
+class FindDevicesScreen extends StatefulWidget {
+  final String? stuId;
+  const FindDevicesScreen({Key? key, this.stuId}) : super(key: key);
+  @override
+  State<FindDevicesScreen> createState() => _FindDevicesScreenState();
+}
+
+class _FindDevicesScreenState extends MomentumState<FindDevicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -104,44 +118,24 @@ class FindDevicesScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  StreamBuilder<List<BluetoothDevice>>(
-                    stream: Stream.periodic(Duration(seconds: 2))
-                        .asyncMap((_) => FlutterBlue.instance.connectedDevices),
-                    initialData: [],
-                    builder: (c, snapshot) => Column(
-                      children: (snapshot.data)!
-                          .map((d) => ListTile(
-                                title: Text(d.name),
-                                subtitle: Text(d.id.toString()),
-                                trailing: StreamBuilder<BluetoothDeviceState>(
-                                  stream: d.state,
-                                  initialData:
-                                      BluetoothDeviceState.disconnected,
-                                  builder: (c, snapshot) {
-                                    if (snapshot.data ==
-                                        BluetoothDeviceState.connected) {
-                                      return ElevatedButton(
-                                        child: Text('OPEN'),
-                                        onPressed: () => Navigator.of(context)
-                                            .push(MaterialPageRoute(
-                                                builder: (context) =>
-                                                    DeviceScreen(device: d))),
-                                      );
-                                    }
-                                    return Text(snapshot.data.toString());
-                                  },
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
                   StreamBuilder<List<ScanResult>>(
                     stream: FlutterBlue.instance.scanResults,
                     initialData: [],
                     builder: (c, snapshot) => Column(
                       children: (snapshot.data)!
                           .map(
-                            (r) => ScanResultTile(result: r, onTap: () {}),
+                            (r) => ScanResultTile(
+                              result: r,
+                              onTap: () {
+                                Momentum.controller<
+                                            RegisterSmartTagResponseController>(
+                                        context)
+                                    .doSendRegisterSmartTag(
+                                  r.device.id.toString(),
+                                  widget.stuId!,
+                                );
+                              },
+                            ),
                           )
                           .toList(),
                     ),
@@ -172,99 +166,38 @@ class FindDevicesScreen extends StatelessWidget {
       ],
     );
   }
-}
 
-class DeviceScreen extends StatelessWidget {
-  const DeviceScreen({Key? key, required this.device}) : super(key: key);
-
-  final BluetoothDevice device;
-
-  List<int> _getRandomBytes() {
-    final math = Random();
-    return [
-      math.nextInt(255),
-      math.nextInt(255),
-      math.nextInt(255),
-      math.nextInt(255)
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(device.name),
-        actions: <Widget>[
-          StreamBuilder<BluetoothDeviceState>(
-            stream: device.state,
-            initialData: BluetoothDeviceState.connecting,
-            builder: (c, snapshot) {
-              VoidCallback onPressed;
-              String text;
-              switch (snapshot.data) {
-                case BluetoothDeviceState.connected:
-                  onPressed = () => device.disconnect();
-                  text = 'DISCONNECT';
-                  break;
-                case BluetoothDeviceState.disconnected:
-                  onPressed = () => device.connect();
-                  text = 'CONNECT';
-                  break;
-                default:
-                  onPressed = () {};
-                  text = snapshot.data.toString().substring(21).toUpperCase();
-                  break;
-              }
-              return ElevatedButton(
-                  onPressed: onPressed,
-                  child: Text(
-                    text,
-                  ));
-            },
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            StreamBuilder<BluetoothDeviceState>(
-              stream: device.state,
-              initialData: BluetoothDeviceState.connecting,
-              builder: (c, snapshot) => ListTile(
-                leading: (snapshot.data == BluetoothDeviceState.connected)
-                    ? Icon(Icons.bluetooth_connected)
-                    : Icon(Icons.bluetooth_disabled),
-                title: Text(
-                    'Device is ${snapshot.data.toString().split('.')[1]}.'),
-                subtitle: Text('${device.id}'),
-                trailing: StreamBuilder<bool>(
-                  stream: device.isDiscoveringServices,
-                  initialData: false,
-                  builder: (c, snapshot) => IndexedStack(
-                    index: (snapshot.data)! ? 1 : 0,
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.refresh),
-                        onPressed: () => device.discoverServices(),
-                      ),
-                      IconButton(
-                        icon: SizedBox(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation(Colors.grey),
-                          ),
-                          width: 18.0,
-                          height: 18.0,
-                        ),
-                        onPressed: null,
-                      )
-                    ],
-                  ),
-                ),
+  void initMomentumState() {
+    // TODO: implement initMomentumState
+    super.initMomentumState();
+    final registerController =
+        Momentum.controller<RegisterSmartTagResponseController>(context);
+    registerController.listen<RegisterSmartTagEvent>(
+      state: this,
+      invoke: (event) {
+        switch (event.action) {
+          case true:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Register smart tag successful'),
+                backgroundColor: Colors.green, // Thay đổi màu sắc ở đây
               ),
-            ),
-          ],
-        ),
-      ),
+            );
+            break;
+          case false:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Register smart tag fail'),
+                backgroundColor: Colors.red, // Thay đổi màu sắc ở đây
+              ),
+            );
+            break;
+          case null:
+            print(event.message);
+            break;
+          default:
+        }
+      },
     );
   }
 }

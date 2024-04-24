@@ -1,3 +1,4 @@
+import 'package:busmate/models/student_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -5,7 +6,8 @@ import '../../../models/user_model.dart';
 
 class MainScreenParent extends StatefulWidget {
   final User? user;
-  const MainScreenParent({super.key, this.user});
+  final StudentModel? student;
+  const MainScreenParent({super.key, this.user, this.student});
 
   @override
   State<MainScreenParent> createState() => _MainScreenParentState();
@@ -83,14 +85,14 @@ class _MainScreenParentState extends State<MainScreenParent> {
                       leading: CircleAvatar(
                         radius: 30.0,
                         backgroundImage:
-                            AssetImage("assets/image_avt/images4.jpg"),
+                            AssetImage("assets/image_avt/images1.jpg"),
                       ),
                       title: Text(
-                        "Le Duc Tri",
+                        widget.student?.studentName ?? " ",
                         style: TextStyle(color: Colors.white),
                       ),
                       subtitle: Text(
-                        "4A3 - HS43279",
+                        widget.student?.className ?? " ",
                         style: TextStyle(color: Colors.white),
                       ),
                       trailing: Container(

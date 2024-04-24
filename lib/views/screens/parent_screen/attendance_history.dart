@@ -37,46 +37,6 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
                 listAttandance.controller.getAttendanceList(widget.studentId!);
               },
               child: Scaffold(
-                /*
-                extendBodyBehindAppBar: true,
-                appBar: PreferredSize(
-                  preferredSize: Size.fromHeight(60.0),
-                  child: AppBar(
-                    automaticallyImplyLeading: false,
-                    backgroundColor: Colors.transparent,
-                    // elevation: 0,
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hello, parent",
-                          style:
-                              TextStyle(fontSize: 16.sp, color: Colors.white70),
-                        ),
-                        Text(
-                          "Le Duc Minh",
-                          style: TextStyle(
-                              fontSize: 20.sp,
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                    actions: const [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10.0),
-                        child: CircleAvatar(
-                          radius: 30.0,
-                          backgroundImage:
-                              AssetImage('assets/image_avt/avt_parent.jpg'),
-                          backgroundColor: Colors.transparent,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                 */
                 body: Container(
                   width: 1.sw,
                   height: 1.sh,

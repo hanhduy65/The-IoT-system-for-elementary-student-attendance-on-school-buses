@@ -1,3 +1,6 @@
+import 'package:busmate/controllers/item_history_attendance_teacher_today_controller.dart';
+import 'package:busmate/controllers/save_attendance_history_response_controller.dart';
+import 'package:busmate/controllers/send_smart_tags_controller.dart';
 import 'package:busmate/views/screens/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -24,8 +27,11 @@ import 'package:busmate/views/screens/teacher_screen/home_teacher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/list_history_attendance_controller.dart';
+import 'controllers/list_history_attendance_teacher_today_controller.dart';
+import 'controllers/register_smart_tag_response_controller.dart';
 import 'controllers/student_register_RFID_controller.dart';
 import 'controllers/student_register_fingerprint_controller.dart';
+import 'controllers/take_attendance_response_controller.dart';
 import 'generated/color_schemes.g.dart';
 
 void main() async {
@@ -52,7 +58,13 @@ Momentum momentum = Momentum(
     RegisterController(),
     ListHistoryAttendanceController(),
     StudentRegisterRFIDListController(),
-    StudentRegisterFingerprintListController()
+    StudentRegisterFingerprintListController(),
+    RegisterSmartTagResponseController(),
+    TakeAttendanceResponseController(),
+    SendSmartTagsResponseController(),
+    SaveAttendanceHistoryResponseController(),
+    ItemHistoryAttendanceTeacherController(),
+    ListHistoryAttendanceTeacherController()
   ],
   services: [StudentServices(), AuthServices(), BusServices()],
   appLoader: ScreenUtilInit(

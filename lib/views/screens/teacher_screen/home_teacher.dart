@@ -54,44 +54,47 @@ class _HomeTeacherState extends MomentumState<HomeTeacher> {
               user: widget.user,
             )
           ];
-          return Scaffold(
-            // appBar: AppBar(
-            //   automaticallyImplyLeading: false,
-            //   title: const Center(child: Text('Hello, supervisor!')),
-            // ),
-            body: Center(
-              child: _widgetOptions.elementAt(_selectedIndex),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              // backgroundColor: Colors.transparent,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_filled),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.border_color),
-                  label: 'Attendance',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_add),
-                  label: 'Register',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.location_on),
-                  label: 'Tracking',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Account',
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedFontSize: 14,
-              unselectedFontSize: 10,
-              selectedItemColor: Theme.of(context).primaryColor,
-              onTap: _onItemTapped,
+          return PopScope(
+            canPop: false,
+            child: Scaffold(
+              // appBar: AppBar(
+              //   automaticallyImplyLeading: false,
+              //   title: const Center(child: Text('Hello, supervisor!')),
+              // ),
+              body: Center(
+                child: _widgetOptions.elementAt(_selectedIndex),
+              ),
+              bottomNavigationBar: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                // backgroundColor: Colors.transparent,
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_filled),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.border_color),
+                    label: 'Attendance',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person_add),
+                    label: 'Register',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.location_on),
+                    label: 'Tracking',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: 'Account',
+                  ),
+                ],
+                currentIndex: _selectedIndex,
+                selectedFontSize: 14,
+                unselectedFontSize: 10,
+                selectedItemColor: Theme.of(context).primaryColor,
+                onTap: _onItemTapped,
+              ),
             ),
           );
         });

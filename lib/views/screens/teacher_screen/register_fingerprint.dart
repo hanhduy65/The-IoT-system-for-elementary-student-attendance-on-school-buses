@@ -64,9 +64,9 @@ class _RegisterStudentByFingerprintState
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: CardStudentRegister(
-                                              name: listStudents
-                                                  .studentList[index]
-                                                  .studentName),
+                                              stu: listStudents
+                                                  .studentList[index],
+                                              index: index),
                                         ),
                                       ),
                                       onTap: () {

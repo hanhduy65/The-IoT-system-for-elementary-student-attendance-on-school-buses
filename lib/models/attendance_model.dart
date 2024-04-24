@@ -4,7 +4,7 @@ import '../controllers/attendance_controller.dart';
 
 class AttendanceModel extends MomentumModel<AttendanceController> {
   final int? busId, rfidId;
-  final String? startBus, studentName, studentId;
+  final String? startBus, studentName, studentId, endBus;
   final bool? isOnBus;
 
   const AttendanceModel(AttendanceController controller,
@@ -12,6 +12,7 @@ class AttendanceModel extends MomentumModel<AttendanceController> {
       this.studentId,
       this.isOnBus,
       this.startBus,
+      this.endBus,
       this.rfidId,
       this.studentName})
       : super(controller);
@@ -26,6 +27,7 @@ class AttendanceModel extends MomentumModel<AttendanceController> {
       busId: json?["bus_id"],
       studentId: json?["student_id"],
       startBus: json?["start_bus"],
+      endBus: json?["end_bus"] ?? " ",
       isOnBus: json?["is_on_bus"],
       studentName: json?["student_name"],
       rfidId: json?["rfid_id"],

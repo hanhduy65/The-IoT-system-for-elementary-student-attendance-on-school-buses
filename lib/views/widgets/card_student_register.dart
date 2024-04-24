@@ -1,44 +1,39 @@
 import 'package:flutter/material.dart';
 
+import '../../models/student_model.dart';
+
 class CardStudentRegister extends StatelessWidget {
-  final String? name;
-  const CardStudentRegister({super.key, this.name});
+  final StudentModel? stu;
+  final int? index;
+  const CardStudentRegister({super.key, this.stu, this.index});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const Padding(
+      leading: Padding(
         padding: EdgeInsets.only(right: 10.0),
         child: CircleAvatar(
           radius: 30.0,
-          backgroundImage: AssetImage("assets/image_avt/images1.jpg"),
+          backgroundImage: index == 0
+              ? const AssetImage("assets/image_avt/images1.jpg")
+              : index == 1
+                  ? AssetImage("assets/image_avt/images2.jpg")
+                  : index == 2
+                      ? AssetImage("assets/image_avt/images3.jpg")
+                      : index == 3
+                          ? AssetImage("assets/image_avt/images4.jpg")
+                          : AssetImage("assets/image_avt/images5.jpg"),
           backgroundColor: Colors.transparent,
         ),
       ),
       title: Text(
-        name ?? "",
+        stu?.studentName ?? "",
         style: const TextStyle(color: Colors.black),
       ),
-      subtitle: const Text(
-        "02/09/2002",
-        style: TextStyle(color: Colors.black),
-      ),
-      trailing: const IntrinsicHeight(
-        child: Column(
-          children: [
-            Text(
-              "HS160643",
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal),
-            ),
-            Text(
-              "Class: 4A3",
-              style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
-            )
-          ],
+      trailing: IntrinsicHeight(
+        child: Text(
+          stu?.studentId ?? " ",
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
         ),
       ),
     );

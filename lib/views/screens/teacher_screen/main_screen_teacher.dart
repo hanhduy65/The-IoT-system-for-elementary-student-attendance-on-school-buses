@@ -182,7 +182,7 @@ class _MainScreenTeacherState extends State<MainScreenTeacher> {
                                   ),
                                 ),
                                 Text(
-                                  "26",
+                                  "6",
                                   style: TextStyle(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.bold),

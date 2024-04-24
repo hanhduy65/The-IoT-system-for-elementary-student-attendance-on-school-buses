@@ -316,7 +316,7 @@ class _RegisterScreenState extends MomentumState<RegisterScreen> {
     // TODO: implement initMomentumState
     super.initMomentumState();
     final registerController = Momentum.controller<RegisterController>(context);
-    registerController.listen<AuthEvent>(
+    registerController.listen<AuthRegisterEvent>(
       state: this,
       invoke: (event) {
         switch (event.action) {

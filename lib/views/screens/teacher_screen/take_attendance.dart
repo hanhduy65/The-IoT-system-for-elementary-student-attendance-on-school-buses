@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:busmate/controllers/save_attendance_history_response_controller.dart';
+import 'package:busmate/controllers/take_attendance_response_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:momentum/momentum.dart';
@@ -9,6 +11,7 @@ import 'package:busmate/models/student_on_bus_list_model.dart';
 import 'package:busmate/views/screens/detail_student.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../events/events.dart';
 import '../../../models/user_model.dart';
 
 class TakeAttendanceScreen extends StatefulWidget {
@@ -26,7 +29,10 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
   int _elapsedSeconds = 0;
   int takeAttended =
       -1; // -1 : chưa bắt đầu, 0: điểm danh lên, 1: điểm danh xuống
-
+  Map<String, bool> studentSelections = {};
+  List<String> studentIdList = [];
+  int numberStuChecked = 0;
+  int numberStuNotChecked = 0;
   void getDataIsStart() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     bool newStart = await sp.getBool("key_isStart") ?? false;
@@ -133,17 +139,42 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                                               .secondary
                                                           : Theme.of(context)
                                                               .primaryColor,
-                                                      child: ListTile(
-                                                        title: Text(
-                                                          listStudents
-                                                                  .studentList[
-                                                                      index]
-                                                                  .studentName ??
-                                                              "",
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 18.sp),
+                                                      child: CheckboxListTile(
+                                                        title: Row(
+                                                          children: [
+                                                            CircleAvatar(
+                                                              radius: 30.0,
+                                                              backgroundImage: index ==
+                                                                      0
+                                                                  ? const AssetImage(
+                                                                      "assets/image_avt/images1.jpg")
+                                                                  : index == 1
+                                                                      ? AssetImage(
+                                                                          "assets/image_avt/images2.jpg")
+                                                                      : index ==
+                                                                              2
+                                                                          ? AssetImage(
+                                                                              "assets/image_avt/images3.jpg")
+                                                                          : index == 3
+                                                                              ? AssetImage("assets/image_avt/images4.jpg")
+                                                                              : AssetImage("assets/image_avt/images5.jpg"),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 10.w,
+                                                            ),
+                                                            Text(
+                                                              listStudents
+                                                                      .studentList[
+                                                                          index]
+                                                                      .studentName ??
+                                                                  "",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      18.sp),
+                                                            ),
+                                                          ],
                                                         ),
                                                         subtitle: Column(
                                                           crossAxisAlignment:
@@ -157,40 +188,29 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                                                 "Id card: ${listStudents.studentList[index].rfidId.toString()!}"),
                                                           ],
                                                         ),
-                                                        trailing: listStudents
-                                                                .studentList[
-                                                                    index]
-                                                                .isOnBus!
-                                                            ? const Icon(
-                                                                Icons
-                                                                    .arrow_upward,
-                                                                color: Color(
-                                                                    0xFF00EC00),
-                                                              )
-                                                            : const Icon(
-                                                                Icons
-                                                                    .arrow_downward,
-                                                                color: Color(
-                                                                    0xFFF0F400)),
-                                                        leading: CircleAvatar(
-                                                          radius: 30.0,
-                                                          backgroundImage: index ==
-                                                                  0
-                                                              ? const AssetImage(
-                                                                  "assets/image_avt/images1.jpg")
-                                                              : index == 1
-                                                                  ? AssetImage(
-                                                                      "assets/image_avt/images2.jpg")
-                                                                  : index == 2
-                                                                      ? AssetImage(
-                                                                          "assets/image_avt/images3.jpg")
-                                                                      : index ==
-                                                                              3
-                                                                          ? AssetImage(
-                                                                              "assets/image_avt/images4.jpg")
-                                                                          : AssetImage(
-                                                                              "assets/image_avt/images5.jpg"),
-                                                        ),
+                                                        value: studentSelections[
+                                                                listStudents
+                                                                    .studentList[
+                                                                        index]
+                                                                    .studentId] ??
+                                                            false,
+                                                        onChanged:
+                                                            (bool? value) {
+                                                          if (takeAttended !=
+                                                              -1) {
+                                                            setState(() {
+                                                              studentSelections[
+                                                                  listStudents
+                                                                      .studentList[
+                                                                          index]
+                                                                      .studentId!] = value!;
+                                                            });
+                                                          }
+                                                        },
+                                                        activeColor:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .secondary,
                                                       ),
                                                     ),
                                                     onTap: () {
@@ -207,10 +227,33 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                                     },
                                                   ),
                                                 ))),
+                                    SizedBox(height: 50.h),
                                   ],
                                 ),
                               ],
                             ),
+                          ),
+                        ),
+                        floatingActionButton: Visibility(
+                          visible: studentSelections.isNotEmpty,
+                          child: FloatingActionButton(
+                            onPressed: () {
+                              print(studentSelections);
+                              studentSelections.forEach((key, value) {
+                                if (value) {
+                                  studentIdList.add(key);
+                                }
+                              });
+                              print(studentIdList);
+                              Momentum.controller<
+                                      TakeAttendanceResponseController>(context)
+                                  .doTakeAttendance(studentIdList);
+                              setState(() {
+                                studentSelections = {};
+                                studentIdList = [];
+                              });
+                            },
+                            child: Icon(Icons.check),
                           ),
                         ),
                         persistentFooterButtons: [
@@ -241,6 +284,12 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                         takeAttended = 0;
                                       } else if (takeAttended == 0) {
                                         takeAttended = 1;
+                                        setState(() {
+                                          numberStuChecked =
+                                              listStudents.studentsOnBusCount!;
+                                          numberStuNotChecked =
+                                              listStudents.studentsOffBusCount!;
+                                        });
                                       } else {
                                         takeAttended = -1;
                                       }
@@ -281,15 +330,15 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                                               Color(0xFF3947D5),
                                                           fontWeight:
                                                               FontWeight.bold,
-                                                          fontSize: 28))
+                                                          fontSize: 26.sp))
                                                   : Text(
-                                                      "${formatNumber(listStudents.studentsOffBusCount!)}/${formatNumber(listStudents.studentList.length)}",
+                                                      "${formatNumber(listStudents.studentsOffBusCount! - numberStuNotChecked)}/${formatNumber(numberStuChecked)}",
                                                       style: TextStyle(
                                                           color:
                                                               Color(0xFF3947D5),
                                                           fontWeight:
                                                               FontWeight.bold,
-                                                          fontSize: 28)),
+                                                          fontSize: 26.sp)),
                                           SizedBox(
                                             height: 4.h,
                                           ),
@@ -366,13 +415,52 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
                                                      */
                               InkWell(
                                 onTap: () {
-                                  setState(() {
-                                    takeAttended = -1;
-                                    isStart = false;
-                                    print("set lại state con isStart là false");
-                                  });
-                                  Momentum.controller<BusController>(context)
-                                      .startOrEndBus(widget.busId!, false);
+                                  if (numberStuChecked ==
+                                      listStudents.studentsOffBusCount! -
+                                          numberStuNotChecked) {
+                                    setState(() {
+                                      takeAttended = -1;
+                                      isStart = false;
+                                      print(
+                                          "set lại state con isStart là false");
+
+                                      studentSelections = {};
+                                      studentIdList = [];
+                                    });
+                                    Momentum.controller<BusController>(context)
+                                        .startOrEndBus(widget.busId!, false);
+                                    Momentum.controller<
+                                                SaveAttendanceHistoryResponseController>(
+                                            context)
+                                        .doSaveAttendanceHistoryReport(
+                                            widget.user!.userId!,
+                                            widget.busId!);
+                                  } else {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Center(
+                                              child: Text(
+                                            'Warning !!!',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColor),
+                                          )),
+                                          content: const Text(
+                                              'There are still students who havent gotten off the bus yet.'),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text('Close'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  }
                                 },
                                 child: Image.asset(
                                   "assets/icons/icon_finish_green_grey.png",
@@ -394,15 +482,44 @@ class _TakeAttendanceScreenState extends MomentumState<TakeAttendanceScreen> {
     // TODO: implement initMomentumState
     super.initMomentumState();
     getDataIsStart();
+    final registerController =
+        Momentum.controller<TakeAttendanceResponseController>(context);
+    registerController.listen<TakeAttendanceEvent>(
+      state: this,
+      invoke: (event) {
+        switch (event.action) {
+          case true:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Take attendance successful'),
+                backgroundColor: Colors.green, // Thay đổi màu sắc ở đây
+              ),
+            );
+            break;
+          case false:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Take attendance fail'),
+                backgroundColor: Colors.red, // Thay đổi màu sắc ở đây
+              ),
+            );
+            break;
+          case null:
+            print(event.message);
+            break;
+          default:
+        }
+      },
+    );
   }
 
   void _startTimer() {
-    Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (isStart && _elapsedSeconds < 150) {
+    Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (isStart && _elapsedSeconds < 300) {
         Momentum.controller<StudentOnBusListController>(context)
             .getStudentList(widget.busId!);
         setState(() {
-          _elapsedSeconds += 5;
+          _elapsedSeconds += 2;
         });
         print(" time đang chạy $_elapsedSeconds");
       } else {

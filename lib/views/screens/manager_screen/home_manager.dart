@@ -1,5 +1,6 @@
 import 'package:busmate/views/screens/account_screen.dart';
 import 'package:busmate/views/screens/manager_screen/main_screen_manager.dart';
+import 'package:busmate/views/screens/manager_screen/view_map_of_manager.dart';
 import 'package:busmate/views/screens/register_screen.dart';
 import 'package:busmate/views/screens/teacher_screen/register_student.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _HomeManagerState extends State<HomeManager> {
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
       MainScreenManager(),
-      ViewMapOfParent(
+      ViewMapOfManager(
         user: widget.user!,
       ),
       RegisterStudent(
@@ -43,43 +44,46 @@ class _HomeManagerState extends State<HomeManager> {
       ),
     ];
 
-    return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        // backgroundColor: Color(0xFF58952D),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Center(
+          child: _widgetOptions.elementAt(_selectedIndex),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          // backgroundColor: Color(0xFF58952D),
 
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.location_on),
-            label: 'Tracking',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box),
-            label: 'Register',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_add),
-            label: 'SignUp',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Account',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedFontSize: 16,
-        unselectedFontSize: 12,
-        selectedItemColor: Color(0xFFECAB33),
-        onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_filled),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.location_on),
+              label: 'Tracking',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_box),
+              label: 'Register',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_add),
+              label: 'SignUp',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Account',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedFontSize: 16,
+          unselectedFontSize: 12,
+          selectedItemColor: Color(0xFFECAB33),
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }

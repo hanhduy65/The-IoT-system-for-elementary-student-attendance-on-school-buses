@@ -9,6 +9,7 @@ class AttendanceController extends MomentumController<AttendanceModel> {
         busId: 0,
         isOnBus: false,
         startBus: "",
+        endBus: "",
         studentId: "",
         studentName: "",
         rfidId: 0);

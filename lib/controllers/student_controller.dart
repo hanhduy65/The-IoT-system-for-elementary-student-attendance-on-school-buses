@@ -43,8 +43,11 @@ class StudentController extends MomentumController<StudentModel> {
       final studentService = service<StudentServices>();
       final fetchedStudent =
           await studentService.getStudentIdByParentId(parentId);
-
-      model.update(studentId: fetchedStudent.studentId ?? "");
+      print("Get student by parent id" + fetchedStudent.toString());
+      model.update(
+          studentId: fetchedStudent.studentId ?? "",
+          studentName: fetchedStudent.studentName ?? "",
+          className: fetchedStudent.className ?? "");
     } catch (e) {
       print("get student by id error: $e");
     }

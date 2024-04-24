@@ -104,6 +104,13 @@ class LoginController extends MomentumController<LoginModel> {
     sendEvent(LocationEvent(location: profile));
   }
 
+  Future<void> doGetGPSForManager() async {
+    print("controller getGPS for Manager");
+    final authService = service<AuthServices>();
+    final profile = await authService.getGPSByUserId();
+    sendEvent(ManagerLocationEvent(locations: profile));
+  }
+
   Future<void> doSendRegisterBusStop(
       String studentId, String lat, String long) async {
     final authService = service<AuthServices>();

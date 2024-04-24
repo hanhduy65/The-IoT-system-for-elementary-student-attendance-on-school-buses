@@ -63,7 +63,7 @@ class RegisterController extends MomentumController<RegisterModel> {
     final authService = service<AuthServices>();
     final profile = await authService.register(requestModel);
     print("controller of register: " + profile.isAuthSuccessful.toString());
-    sendEvent(AuthEvent(
+    sendEvent(AuthRegisterEvent(
       action: profile.isAuthSuccessful,
       message: profile.authResponseMessage ?? "",
     ));

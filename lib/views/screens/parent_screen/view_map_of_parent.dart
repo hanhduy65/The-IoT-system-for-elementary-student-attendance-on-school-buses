@@ -8,14 +8,16 @@ import 'package:busmate/events/events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
+import '../../../models/student_model.dart';
 import '../../../models/user_model.dart';
 import '../../widgets/card_student_register.dart';
 
 class ViewMapOfParent extends StatefulWidget {
   final String? token;
   final User user;
+  final StudentModel? student;
 
-  ViewMapOfParent({super.key, this.token, required this.user});
+  ViewMapOfParent({super.key, this.token, required this.user, this.student});
 
   @override
   State<ViewMapOfParent> createState() => _ViewMapOfParentState();
@@ -23,6 +25,7 @@ class ViewMapOfParent extends StatefulWidget {
 
 class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
   String lat = "0", long = "0";
+  bool isOnBusBySmartTag = false;
   String locationMess = "Current Location of the user";
   Timer? timer;
   double startLatitude = 0, startLongitude = 0;
@@ -49,15 +52,15 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
     startLongitude = double.parse(sp.getString("key_longBusStop") ?? "0");
   }
 
-  double calculateDistance(double endLatitude, double endLongitude) {
-    double distanceInMeters = Geolocator.distanceBetween(
-      startLatitude,
-      startLongitude,
-      endLatitude,
-      endLongitude,
-    );
-    return startLatitude == 0 ? -1 : distanceInMeters;
-  }
+  // double calculateDistance(double endLatitude, double endLongitude) {
+  //   double distanceInMeters = Geolocator.distanceBetween(
+  //     startLatitude,
+  //     startLongitude,
+  //     endLatitude,
+  //     endLongitude,
+  //   );
+  //   return startLatitude == 0 ? -1 : distanceInMeters;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -109,13 +112,24 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
                 mapType: MapType.normal,
                 markers: {
                   Marker(
-                    markerId: MarkerId('MyMarker'),
+                    markerId: MarkerId('BusLocation'),
                     position: LatLng(double.parse(lat), double.parse(long)),
                     // Vị trí của đánh dấu
                     infoWindow: const InfoWindow(
                       title: 'My Location',
                     ),
                   ),
+                  Marker(
+                    visible: startLatitude != 0,
+                    markerId: MarkerId('MyPoint'),
+                    position: LatLng(startLatitude, startLongitude),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueOrange),
+                    // Vị trí của đánh dấu
+                    infoWindow: const InfoWindow(
+                      title: 'My Location',
+                    ),
+                  )
                 },
                 initialCameraPosition: _position,
                 onMapCreated: _onMapCreated,
@@ -247,13 +261,13 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
                                 height: 40,
                               ),
                               title: Text(
-                                "Supervisor",
+                                "Teacher",
                                 style: TextStyle(
                                     color: Color(0xFFDC7D32),
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold),
                               ),
-                              subtitle: Text("Luu Minh Huong / 0856898687",
+                              subtitle: Text("Le Minh Hien/ 0856898687",
                                   style: TextStyle(fontSize: 14.sp)),
                               trailing: InkWell(
                                 child: const Icon(
@@ -275,11 +289,13 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.0),
                     child: Card(
-                        color: Color(0xFFFAE4BF),
+                        color: isOnBusBySmartTag
+                            ? Colors.green
+                            : Color(0xFFFAE4BF),
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 8),
                           child: ListTile(
-                            title: Text("Lưu Minh Hương"),
+                            title: Text(widget.student?.studentName ?? " "),
                             leading: Padding(
                               padding: EdgeInsets.only(right: 10.0),
                               child: CircleAvatar(
@@ -289,9 +305,9 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
                                 backgroundColor: Colors.transparent,
                               ),
                             ),
-                            subtitle: Text(calculateDistance(
-                                    double.parse(lat), double.parse(long))
-                                .toString()),
+                            // subtitle: Text(calculateDistance(
+                            //         double.parse(lat), double.parse(long))
+                            //     .toString()),
                           ),
                         )),
                   ))
@@ -307,7 +323,7 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
     super.initMomentumState();
     final loginController = Momentum.controller<LoginController>(context);
     Momentum.controller<LoginController>(context).doGetGPS(widget.user.userId!);
-    timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
         Momentum.controller<LoginController>(context)
             .doGetGPS(widget.user.userId!);
@@ -321,6 +337,7 @@ class _ViewMapOfParentState extends MomentumState<ViewMapOfParent> {
             lat = event.location.lat!;
             long = event.location.long!;
             setState(() {
+              isOnBusBySmartTag = event.location.isOnBusBySmartTag!;
               locationMess = 'Latitude: $lat, Longitude:$long';
               _position = CameraPosition(
                   target: LatLng(double.parse(lat), double.parse(long)),

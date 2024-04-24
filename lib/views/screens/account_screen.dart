@@ -1,5 +1,6 @@
 import 'package:busmate/views/screens/info_account.dart';
 import 'package:busmate/views/screens/parent_screen/choosing_location.dart';
+import 'package:busmate/views/screens/teacher_screen/today_history_attendance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,13 +51,16 @@ class AccountScreen extends StatelessWidget {
                             ]),
                         child: Container(
                             padding: const EdgeInsets.all(4.0),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.white,
                                 image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: AssetImage(
-                                        'assets/image_avt/avt_parent.jpg'))))),
+                                    image: user!.roleId == 1
+                                        ? AssetImage(
+                                            'assets/image_avt/avt_parent.jpg')
+                                        : AssetImage(
+                                            'assets/image_avt/avt.jpg'))))),
                     SizedBox(height: 16.h),
                     Text(
                       user?.fullName?.toUpperCase() ?? " ",
@@ -104,37 +108,69 @@ class AccountScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 5.h),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => PlaceAPIGoogleMapSearch(
-                              stuId: stuId,
-                            )),
-                  );
-                },
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20), // Thiết lập bo tròn cho Card
-                  ),
-                  color: Colors.white,
-                  surfaceTintColor: Colors.transparent,
-                  child: const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.location_on,
-                        color: Colors.blueAccent,
+              user!.roleId == 1
+                  ? InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PlaceAPIGoogleMapSearch(
+                                    stuId: stuId,
+                                  )),
+                        );
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              20), // Thiết lập bo tròn cho Card
+                        ),
+                        color: Colors.white,
+                        surfaceTintColor: Colors.transparent,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.0, vertical: 8),
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.location_on,
+                              color: Colors.blueAccent,
+                            ),
+                            title: Text("Add pick-up/drop-off locations"),
+                            trailing: Icon(Icons.arrow_forward_ios),
+                          ),
+                        ),
                       ),
-                      title: Text("Add pick-up/drop-off locations"),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                    )
+                  : InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TodayHistoryAttendance(
+                                    user: user,
+                                  )),
+                        );
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              20), // Thiết lập bo tròn cho Card
+                        ),
+                        color: Colors.white,
+                        surfaceTintColor: Colors.transparent,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.0, vertical: 8),
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.check_circle,
+                              color: Colors.blueAccent,
+                            ),
+                            title: Text("View attendance history today"),
+                            trailing: Icon(Icons.arrow_forward_ios),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
               SizedBox(height: 5.h),
               Card(
                 shape: RoundedRectangleBorder(

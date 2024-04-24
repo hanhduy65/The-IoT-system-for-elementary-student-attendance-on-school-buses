@@ -69,56 +69,57 @@ class _HomeParentState extends MomentumState<HomeParent> {
           }
 
           List<Widget> _widgetOptions = <Widget>[
-            MainScreenParent(user: widget.user),
-            ViewMapOfParent(
-              user: widget.user,
-            ),
+            MainScreenParent(user: widget.user, student: stuController.model),
+            ViewMapOfParent(user: widget.user, student: stuController.model),
             AttendanceHistory(
                 user: widget.user, studentId: stuController.model.studentId),
             // InfoAccount(
             //   user: widget.user,
             // ),
-            BluetoothScan(),
+            BluetoothScan(stuId: stuController.model.studentId),
             AccountScreen(
                 user: widget.user, stuId: stuController.model.studentId)
           ];
-          return Scaffold(
-            body: Center(
-              child: _widgetOptions.elementAt(_selectedIndex),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              // backgroundColor: Color(0xFF58952D),
+          return PopScope(
+            canPop: false,
+            child: Scaffold(
+              body: Center(
+                child: _widgetOptions.elementAt(_selectedIndex),
+              ),
+              bottomNavigationBar: BottomNavigationBar(
+                // backgroundColor: Color(0xFF58952D),
 
-              type: BottomNavigationBarType.fixed,
-              elevation: 0,
-              backgroundColor: Colors.transparent,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_filled),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.location_on),
-                  label: 'Tracking',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.border_color),
-                  label: 'Attendance',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.bluetooth),
-                  label: 'Tag',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Account',
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedFontSize: 16,
-              unselectedFontSize: 12,
-              selectedItemColor: Color(0xFFECAB33),
-              onTap: _onItemTapped,
+                type: BottomNavigationBarType.fixed,
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_filled),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.location_on),
+                    label: 'Tracking',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.border_color),
+                    label: 'Attendance',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.bluetooth),
+                    label: 'Tag',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: 'Account',
+                  ),
+                ],
+                currentIndex: _selectedIndex,
+                selectedFontSize: 16,
+                unselectedFontSize: 12,
+                selectedItemColor: Color(0xFFECAB33),
+                onTap: _onItemTapped,
+              ),
             ),
           );
         });
